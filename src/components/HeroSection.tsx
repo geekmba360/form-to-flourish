@@ -3,7 +3,7 @@ import { Target, CheckCircle } from "lucide-react";
 
 export const HeroSection = () => {
   return (
-    <section className="bg-gradient-subtle py-20 px-4">
+    <section className="bg-gradient-subtle pt-20 pb-12 px-4">
       <div className="max-w-4xl mx-auto text-center">
         <div className="flex items-center justify-center gap-2 mb-6 animate-fade-in-up">
           <Target className="w-8 h-8 text-primary" />

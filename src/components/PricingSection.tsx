@@ -16,25 +16,22 @@ export const PricingSection = () => {
         "Tailored to your job description",
         "Based on your LinkedIn/resume",
         "Behavioral & leadership questions",
-        "Technical/functional questions", 
-        "Role-specific questions",
+        "Technical questions (for roles requiring technical questions)", 
+        "Function/role competency questions",
         "Bonus: Questions to ask the interviewer"
       ],
       popular: true,
-      cta: "Get My Questions"
+      cta: "Get My Personalized Questions"
     },
     {
       id: "express",
       name: "Express Interview Prep Package Plus",
-      price: 849,
+      price: 749,
       description: "Two private coaching sessions + unlimited email support + Anticipate Interview Questions",
       features: [
         "Everything in Anticipate Questions",
         "2 private 1-on-1 coaching sessions",
-        "Unlimited email support",
-        "Interview strategy development",
-        "Mock interview practice",
-        "Real-time feedback and improvements"
+        "Unlimited email support"
       ],
       popular: false,
       cta: "Book Express Package"
@@ -50,6 +47,7 @@ export const PricingSection = () => {
         "Complete resume review & optimization",
         "Cover letter review & writing",
         "LinkedIn profile optimization",
+        "Target companies list definition",
         "Salary negotiation coaching",
         "30-day follow-up support"
       ],

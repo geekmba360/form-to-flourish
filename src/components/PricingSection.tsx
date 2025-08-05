@@ -1,8 +1,32 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Clock, Shield, Target, Users, FileText } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export const PricingSection = () => {
+  const { toast } = useToast();
+  
+  const handlePurchase = async (packageId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('create-payment', {
+        body: { packageId }
+      });
+      
+      if (error) throw error;
+      
+      // Open Stripe checkout in a new tab
+      window.open(data.url, '_blank');
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast({
+        title: "Payment Error", 
+        description: "Failed to initiate payment. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const packages = [
     {
       id: "anticipate",
@@ -105,6 +129,7 @@ export const PricingSection = () => {
                   variant={pkg.popular ? "cta" : "default"} 
                   size="lg" 
                   className="w-full"
+                  onClick={() => handlePurchase(pkg.id)}
                 >
                   {pkg.cta}
                 </Button>

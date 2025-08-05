@@ -64,7 +64,7 @@ serve(async (req) => {
     };
 
     // Add customer to "Anticipate Interview Question Service" audience
-    const mailchimpResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/YOUR_ANTICIPATE_INTERVIEW_AUDIENCE_ID/members`, {
+    const mailchimpResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/d7102b6132/members`, {
       method: "POST",
       headers: {
         "Authorization": `apikey ${mailchimpApiKey}`,
@@ -94,7 +94,7 @@ serve(async (req) => {
     }
 
     // Send notification to Andrew
-    const notificationResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/YOUR_ANTICIPATE_INTERVIEW_AUDIENCE_ID/members`, {
+    const notificationResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/d7102b6132/members`, {
       method: "POST",
       headers: {
         "Authorization": `apikey ${mailchimpApiKey}`,

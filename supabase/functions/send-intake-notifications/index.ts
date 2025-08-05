@@ -43,7 +43,7 @@ serve(async (req) => {
     const serverPrefix = mailchimpApiKey?.split('-')[1];
 
     // Send confirmation email to customer
-    const customerEmailResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/YOUR_ANTICIPATE_INTERVIEW_AUDIENCE_ID/members/${formData.email}`, {
+    const customerEmailResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/d7102b6132/members/${formData.email}`, {
       method: "PATCH",
       headers: {
         "Authorization": `apikey ${mailchimpApiKey}`,
@@ -69,7 +69,7 @@ serve(async (req) => {
     }
 
     // Send notification to Andrew about completed intake
-    const andrewNotificationResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/YOUR_ANTICIPATE_INTERVIEW_AUDIENCE_ID/members/andrew@nailyourjobinterview.com`, {
+    const andrewNotificationResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/d7102b6132/members/andrew@nailyourjobinterview.com`, {
       method: "PATCH",
       headers: {
         "Authorization": `apikey ${mailchimpApiKey}`,

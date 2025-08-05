@@ -71,10 +71,8 @@ serve(async (req) => {
       logStep("No existing customer found, will create one in checkout");
     }
 
-    // Create checkout session
-    const session = await stripe.checkout.sessions.create({
-      customer: customerId,
-      customer_email: customerId ? undefined : customerEmail,
+    // Create checkout session - allow customer to enter their own email for guest checkout
+    const sessionConfig: any = {
       line_items: [
         {
           price_data: {
@@ -88,7 +86,15 @@ serve(async (req) => {
       mode: "payment",
       success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/payment-cancelled`,
-    });
+      customer_creation: "always", // Allow guest users to have customer created
+    };
+
+    // Only set customer if we have an existing customer ID, otherwise let them enter their own email
+    if (customerId) {
+      sessionConfig.customer = customerId;
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionConfig);
     logStep("Checkout session created", { sessionId: session.id });
 
     // Create order record in database

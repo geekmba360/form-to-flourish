@@ -25,7 +25,7 @@ const PaymentSuccess = () => {
           .from('orders')
           .select('id')
           .eq('stripe_session_id', sessionId)
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error('Error fetching order:', error);
@@ -33,9 +33,16 @@ const PaymentSuccess = () => {
           setOrderId(data.id);
           
           // Send order confirmation email
-          await supabase.functions.invoke('send-order-confirmation', {
-            body: { orderId: data.id }
-          });
+          try {
+            await supabase.functions.invoke('send-order-confirmation', {
+              body: { orderId: data.id }
+            });
+          } catch (emailError) {
+            console.error('Error sending confirmation email:', emailError);
+            // Don't fail the whole process if email fails
+          }
+        } else {
+          console.log('No order found for session ID:', sessionId);
         }
       } catch (error) {
         console.error('Error processing payment success:', error);

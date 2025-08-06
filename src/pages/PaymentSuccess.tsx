@@ -32,31 +32,30 @@ const PaymentSuccess = () => {
       console.log('Fetching order for session ID:', cleanSessionId);
 
       try {
-        // Query orders table to find the order by session ID
-        const { data, error } = await supabase
-          .from('orders')
-          .select('id, customer_email, package_name, amount, status')
-          .eq('stripe_session_id', cleanSessionId)
-          .maybeSingle();
+        // Use edge function to get order by session ID (bypasses RLS for guest users)
+        const { data: orderData, error: orderError } = await supabase.functions.invoke('get-order-by-session', {
+          body: { sessionId: cleanSessionId }
+        });
 
-        console.log('Database query result:', { data, error });
+        console.log('Edge function result:', { orderData, orderError });
 
-        if (error) {
-          console.error('Error fetching order:', error);
-          setError(`Database error: ${error.message}`);
+        if (orderError) {
+          console.error('Error from edge function:', orderError);
+          setError(`Failed to fetch order: ${orderError.message}`);
           setIsLoading(false);
           return;
         }
 
-        if (data) {
-          console.log('Order found:', data.id);
-          setOrderId(data.id);
+        if (orderData?.order) {
+          const order = orderData.order;
+          console.log('Order found:', order.id);
+          setOrderId(order.id);
           
           // Send order confirmation email
           try {
             console.log('Sending order confirmation email...');
             const { error: emailError } = await supabase.functions.invoke('send-order-confirmation', {
-              body: { orderId: data.id }
+              body: { orderId: order.id }
             });
             
             if (emailError) {
@@ -69,15 +68,6 @@ const PaymentSuccess = () => {
           }
         } else {
           console.log('No order found for session ID:', cleanSessionId);
-          
-          // Debug: Check recent orders
-          const { data: recentOrders } = await supabase
-            .from('orders')
-            .select('id, stripe_session_id, created_at')
-            .order('created_at', { ascending: false })
-            .limit(5);
-          
-          console.log('Recent orders for debugging:', recentOrders);
           setError('Order not found. Please contact support if this issue persists.');
         }
       } catch (error) {

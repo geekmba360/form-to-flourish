@@ -12,12 +12,28 @@ const PaymentSuccess = () => {
   const [orderId, setOrderId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Debug logs
+  // Debug logs - these should appear in console
   console.log('PaymentSuccess component rendered');
   console.log('Current URL search params:', searchParams.toString());
   console.log('Session ID from URL:', sessionId);
   console.log('Current orderId state:', orderId);
   console.log('Current isLoading state:', isLoading);
+
+  // Test if component is actually loading
+  if (!sessionId) {
+    console.log('No session ID - showing error message');
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="max-w-md w-full text-center">
+          <CardContent className="p-6">
+            <h1 className="text-2xl font-bold text-red-600">No Session ID Found</h1>
+            <p>Please check the URL has a session_id parameter</p>
+            <Button onClick={() => navigate('/')} className="mt-4">Go Home</Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   useEffect(() => {
     const fetchOrderId = async () => {

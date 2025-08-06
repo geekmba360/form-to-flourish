@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      intake_forms: {
+        Row: {
+          additional_info: string | null
+          created_at: string
+          email: string
+          id: string
+          job_description: string
+          job_url: string | null
+          linkedin: string | null
+          name: string
+          order_id: string
+          phone: string | null
+          resume_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          additional_info?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          job_description: string
+          job_url?: string | null
+          linkedin?: string | null
+          name: string
+          order_id: string
+          phone?: string | null
+          resume_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          additional_info?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          job_description?: string
+          job_url?: string | null
+          linkedin?: string | null
+          name?: string
+          order_id?: string
+          phone?: string | null
+          resume_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           amount: number

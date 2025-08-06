@@ -65,7 +65,7 @@ serve(async (req) => {
 
     // Add customer to "Anticipate Interview Question Service" audience
     const mailchimpResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/d7102b6132/members`, {
-      method: "POST",
+      method: "PUT", // Changed to PUT to handle existing members
       headers: {
         "Authorization": `apikey ${mailchimpApiKey}`,
         "Content-Type": "application/json",
@@ -79,7 +79,8 @@ serve(async (req) => {
           PACKAGE: order.package_name,
           AMOUNT: (order.amount / 100).toFixed(2),
           INTAKE_LINK: `${req.headers.get("origin")}/intake-form?order_id=${orderId}`
-        }
+        },
+        tags: ["order_confirmation", "anticipate_questions"]
       }),
     });
 
@@ -93,9 +94,9 @@ serve(async (req) => {
       logStep("Customer added to Mailchimp successfully");
     }
 
-    // Send notification to Andrew
-    const notificationResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/d7102b6132/members`, {
-      method: "POST",
+    // Send notification to Andrew via separate API call
+    const notificationResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/d7102b6132/members/andrew@nailyourjobinterview.com`, {
+      method: "PUT",
       headers: {
         "Authorization": `apikey ${mailchimpApiKey}`,
         "Content-Type": "application/json",
@@ -113,6 +114,13 @@ serve(async (req) => {
         tags: ["new_order_notification"]
       }),
     });
+
+    if (!notificationResponse.ok) {
+      const notificationErrorText = await notificationResponse.text();
+      logStep("Notification email error", { status: notificationResponse.status, error: notificationErrorText });
+    } else {
+      logStep("Notification email sent to Andrew successfully");
+    }
 
     logStep("Order confirmation process completed");
 

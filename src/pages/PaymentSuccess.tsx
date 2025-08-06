@@ -167,13 +167,6 @@ const PaymentSuccess = () => {
             </p>
           </div>
 
-          <div className="space-y-3">
-            <h3 className="text-lg font-semibold text-foreground">Next Step:</h3>
-            <p className="text-muted-foreground">
-              Complete the intake form below to provide your job details and background information.
-            </p>
-          </div>
-          
           <div className="pt-4 space-y-3">
             <Button 
               onClick={handleContinueToForm}

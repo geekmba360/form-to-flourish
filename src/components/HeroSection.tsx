@@ -38,7 +38,23 @@ export const HeroSection = () => {
           size="xl" 
           variant="cta" 
           className="animate-fade-in-up [animation-delay:800ms]"
-          onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
+          onClick={async () => {
+            try {
+              const { supabase } = await import("@/integrations/supabase/client");
+              const { data, error } = await supabase.functions.invoke('create-payment', {
+                body: { packageId: 'anticipate' }
+              });
+              
+              if (error) throw error;
+              
+              // Open Stripe checkout in current tab for faster conversion
+              window.location.href = data.url;
+            } catch (error) {
+              console.error('Payment error:', error);
+              // Fallback to pricing section if payment fails
+              document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+            }
+          }}
         >
           Get My Custom Questions - $79
         </Button>

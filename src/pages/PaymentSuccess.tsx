@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { createClient } from '@supabase/supabase-js';
+import { IntakeForm } from "@/components/IntakeForm";
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
@@ -12,6 +13,7 @@ const PaymentSuccess = () => {
   const sessionId = searchParams.get('session_id');
   const [orderId, setOrderId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
 
   // Debug logs - these should appear in console
   console.log('PaymentSuccess component rendered');
@@ -132,9 +134,14 @@ const PaymentSuccess = () => {
 
   const handleContinueToForm = () => {
     if (orderId) {
-      navigate(`/intake-form?order_id=${orderId}`);
+      setShowForm(true);
     }
   };
+
+  // If showing the form, render it instead
+  if (showForm && orderId) {
+    return <IntakeForm orderId={orderId} onBack={() => setShowForm(false)} />;
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">

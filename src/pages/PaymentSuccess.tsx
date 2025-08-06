@@ -4,6 +4,7 @@ import { CheckCircle, ArrowRight, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
+import { createClient } from '@supabase/supabase-js';
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
@@ -51,9 +52,16 @@ const PaymentSuccess = () => {
       console.log('Session ID char codes:', cleanSessionId.split('').map(c => c.charCodeAt(0)));
 
       try {
-        // Get order ID from the database using session ID
+        // Get order ID from the database using session ID (using service role for guest orders)
         console.log('Querying database for session ID:', cleanSessionId);
-        const { data, error } = await supabase
+        
+        // Create a service role client to bypass RLS for guest orders
+        const supabaseServiceRole = createClient(
+          'https://vbgyzisstcvrikdhpiil.supabase.co',
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZiZ3l6aXNzdGN2cmlrZGhwaWlsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDQwMTkzNiwiZXhwIjoyMDY5OTc3OTM2fQ.XApJYEgbKGXMKDr8Xr3Veo_gd4QSpZBLg7z_ZwLJKtc'
+        );
+        
+        const { data, error } = await supabaseServiceRole
           .from('orders')
           .select('id, stripe_session_id')
           .eq('stripe_session_id', cleanSessionId)

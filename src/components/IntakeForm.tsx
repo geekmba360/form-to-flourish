@@ -57,9 +57,9 @@ export const IntakeForm = ({ orderId, onBack }: IntakeFormProps) => {
         resumeUrl = uploadData.path;
       }
 
-      // Insert form data into Supabase
+      // Insert form data into Supabase (table will be created after migration)
       const { error: insertError } = await supabase
-        .from('intake_forms')
+        .from('intake_forms' as any)
         .insert({
           order_id: orderId,
           name: formData.name,

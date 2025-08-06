@@ -34,7 +34,11 @@ const PaymentSuccess = () => {
 
         if (error) {
           console.error('Error fetching order:', error);
-        } else if (data) {
+          setIsLoading(false);
+          return;
+        } 
+        
+        if (data) {
           console.log('Order found, setting order ID:', data.id);
           setOrderId(data.id);
           
@@ -52,9 +56,10 @@ const PaymentSuccess = () => {
         }
       } catch (error) {
         console.error('Error processing payment success:', error);
-      } finally {
-        setIsLoading(false);
       }
+      
+      // Always set loading to false at the end
+      setIsLoading(false);
     };
 
     fetchOrderId();

@@ -40,79 +40,93 @@ serve(async (req) => {
     }
     logStep("Order retrieved", { packageName: order.package_name, email: order.customer_email });
 
-    // Send order confirmation email using Mailchimp
-    const mailchimpApiKey = Deno.env.get("MAILCHIMP_API_KEY");
-    const serverPrefix = mailchimpApiKey?.split('-')[1];
-    
-    const emailData = {
-      type: "regular",
-      recipients: {
-        list_id: "YOUR_AUDIENCE_ID", // This should be set to actual audience ID
-        segment_opts: {
-          match: "any",
-          conditions: []
-        }
-      },
-      settings: {
-        subject_line: `Order Confirmation - ${order.package_name}`,
-        from_name: "Andrew - Nail Your Job Interview",
-        reply_to: "andrew@nailyourjobinterview.com"
-      },
-      template: {
-        id: 123456 // This should be replaced with actual template ID
-      }
-    };
+    // Update order status to completed
+    const { error: updateError } = await supabaseClient
+      .from("orders")
+      .update({ status: "completed" })
+      .eq("id", orderId);
 
-    // Add customer to "Anticipate Interview Question Service" audience
-    const mailchimpResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/d7102b6132/members`, {
-      method: "PUT", // Changed to PUT to handle existing members
-      headers: {
-        "Authorization": `apikey ${mailchimpApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email_address: order.customer_email,
-        status: "subscribed",
-        merge_fields: {
-          FNAME: order.customer_email.split('@')[0], // Default name
-          ORDER_ID: orderId,
-          PACKAGE: order.package_name,
-          AMOUNT: (order.amount / 100).toFixed(2),
-          INTAKE_LINK: `${req.headers.get("origin")}/intake-form?order_id=${orderId}`
-        },
-        tags: ["order_confirmation", "anticipate_questions"]
-      }),
-    });
-
-    if (!mailchimpResponse.ok) {
-      const errorText = await mailchimpResponse.text();
-      logStep("Mailchimp API error", { status: mailchimpResponse.status, error: errorText });
-      
-      // Continue execution even if email fails
-      console.warn("Email sending failed, but continuing");
-    } else {
-      logStep("Customer added to Mailchimp successfully");
+    if (updateError) {
+      logStep("Failed to update order status", { error: updateError });
     }
 
-    // Send notification to Andrew via separate API call
-    const notificationResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/d7102b6132/members/andrew@nailyourjobinterview.com`, {
+    // Send order confirmation email using Mailchimp
+    const mailchimpApiKey = Deno.env.get("MAILCHIMP_API_KEY");
+    const audienceId = Deno.env.get("MAILCHIMP_AUDIENCE_ID") || "d7102b6132";
+    
+    if (!mailchimpApiKey) {
+      logStep("WARNING: No Mailchimp API key found, skipping email");
+      return new Response(JSON.stringify({ success: true, warning: "Email not sent - no API key" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
+    const serverPrefix = mailchimpApiKey.split('-')[1];
+    
+    // Extract customer name from email (fallback)
+    const emailParts = order.customer_email.split('@');
+    const defaultName = emailParts[0].charAt(0).toUpperCase() + emailParts[0].slice(1);
+
+    // Add customer to Mailchimp audience
+    const memberData = {
+      email_address: order.customer_email,
+      status: "subscribed",
+      merge_fields: {
+        FNAME: defaultName,
+        ORDER_ID: orderId,
+        PACKAGE: order.package_name,
+        AMOUNT: (order.amount / 100).toFixed(2),
+        INTAKE_LINK: `${req.headers.get("origin") || "https://your-domain.com"}/intake-form?order_id=${orderId}`
+      },
+      tags: ["order_confirmation", "anticipate_questions"]
+    };
+
+    logStep("Adding customer to Mailchimp", { email: order.customer_email });
+
+    const mailchimpResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/${audienceId}/members`, {
       method: "PUT",
       headers: {
         "Authorization": `apikey ${mailchimpApiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        email_address: "andrew@nailyourjobinterview.com",
-        status: "subscribed",
-        merge_fields: {
-          FNAME: "Andrew",
-          ORDER_ID: orderId,
-          CUSTOMER_EMAIL: order.customer_email,
-          PACKAGE: order.package_name,
-          AMOUNT: (order.amount / 100).toFixed(2)
-        },
-        tags: ["new_order_notification"]
-      }),
+      body: JSON.stringify(memberData),
+    });
+
+    const mailchimpResult = await mailchimpResponse.text();
+    
+    if (!mailchimpResponse.ok) {
+      logStep("Mailchimp API error", { 
+        status: mailchimpResponse.status, 
+        error: mailchimpResult,
+        memberData: memberData 
+      });
+    } else {
+      logStep("Customer added to Mailchimp successfully");
+    }
+
+    // Send notification to Andrew
+    const andrewNotificationData = {
+      email_address: "andrew@nailyourjobinterview.com",
+      status: "subscribed",
+      merge_fields: {
+        FNAME: "Andrew",
+        ORDER_ID: orderId,
+        CUSTOMER_EMAIL: order.customer_email,
+        PACKAGE: order.package_name,
+        AMOUNT: (order.amount / 100).toFixed(2),
+        CUSTOMER_NAME: defaultName
+      },
+      tags: ["new_order_notification"]
+    };
+
+    const notificationResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/${audienceId}/members`, {
+      method: "PUT",
+      headers: {
+        "Authorization": `apikey ${mailchimpApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(andrewNotificationData),
     });
 
     if (!notificationResponse.ok) {

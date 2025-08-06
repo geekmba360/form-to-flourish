@@ -84,9 +84,13 @@ serve(async (req) => {
         },
       ],
       mode: "payment",
-      success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${req.headers.get("origin") || "https://your-domain.com"}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/payment-cancelled`,
       customer_creation: "always", // Allow guest users to have customer created
+      billing_address_collection: "required",
+      phone_number_collection: {
+        enabled: true,
+      },
     };
 
     // Only set customer if we have an existing customer ID, otherwise let them enter their own email

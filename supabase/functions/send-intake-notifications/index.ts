@@ -26,7 +26,7 @@ serve(async (req) => {
     logStep("Function started");
 
     const { orderId, formData } = await req.json();
-    logStep("Received data", { orderId, customerName: `${formData.firstName} ${formData.lastName}` });
+    logStep("Received data", { orderId, customerName: formData.name || `${formData.firstName} ${formData.lastName}` });
 
     // Get order details
     const { data: order, error: orderError } = await supabaseClient
@@ -40,52 +40,88 @@ serve(async (req) => {
     }
 
     const mailchimpApiKey = Deno.env.get("MAILCHIMP_API_KEY");
-    const serverPrefix = mailchimpApiKey?.split('-')[1];
+    const audienceId = Deno.env.get("MAILCHIMP_AUDIENCE_ID") || "d7102b6132";
 
-    // Send confirmation email to customer
-    const customerEmailResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/d7102b6132/members/${formData.email}`, {
-      method: "PATCH",
+    if (!mailchimpApiKey) {
+      logStep("WARNING: No Mailchimp API key found, skipping email notifications");
+      return new Response(JSON.stringify({ success: true, warning: "Emails not sent - no API key" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
+    const serverPrefix = mailchimpApiKey.split('-')[1];
+
+    // Update customer information in Mailchimp
+    const customerName = formData.name || `${formData.firstName || ''} ${formData.lastName || ''}`.trim();
+    const customerEmail = formData.email || order.customer_email;
+
+    const customerUpdateData = {
+      email_address: customerEmail,
+      status: "subscribed",
+      merge_fields: {
+        FNAME: formData.firstName || formData.name || customerName,
+        LNAME: formData.lastName || "",
+        PHONE: formData.phone || formData.phoneNumber || "",
+        LINKEDIN: formData.linkedin || formData.linkedinProfile || "",
+        JOBDESC: formData.job_description || formData.jobDescriptionText || formData.jobDescriptionLink || "",
+        ADDITIONAL: formData.additional_info || formData.additionalInformation || "",
+        ORDER_ID: orderId
+      },
+      tags: ["intake_completed"]
+    };
+
+    logStep("Updating customer information in Mailchimp", { email: customerEmail });
+
+    const customerEmailResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/${audienceId}/members`, {
+      method: "PUT",
       headers: {
         "Authorization": `apikey ${mailchimpApiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        merge_fields: {
-          FNAME: formData.firstName,
-          LNAME: formData.lastName,
-          PHONE: formData.phoneNumber,
-          LINKEDIN: formData.linkedinProfile || "",
-          JOBDESC: formData.jobDescriptionText || formData.jobDescriptionLink || "",
-          ADDITIONAL: formData.additionalInformation || ""
-        },
-        tags: ["intake_completed"]
-      }),
+      body: JSON.stringify(customerUpdateData),
     });
 
     if (!customerEmailResponse.ok) {
-      logStep("Customer email update failed", { status: customerEmailResponse.status });
+      const errorText = await customerEmailResponse.text();
+      logStep("Customer email update failed", { status: customerEmailResponse.status, error: errorText });
     } else {
       logStep("Customer information updated in Mailchimp");
     }
 
     // Send notification to Andrew about completed intake
-    const andrewNotificationResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/d7102b6132/members/andrew@nailyourjobinterview.com`, {
-      method: "PATCH",
+    const andrewNotificationData = {
+      email_address: "andrew@nailyourjobinterview.com",
+      status: "subscribed",
+      merge_fields: {
+        FNAME: "Andrew",
+        LAST_CUSTOMER: customerName,
+        CUSTOMER_EMAIL: customerEmail,
+        ORDER_ID: orderId,
+        PACKAGE: order.package_name,
+        PHONE: formData.phone || formData.phoneNumber || "",
+        LINKEDIN: formData.linkedin || formData.linkedinProfile || "",
+        JOB_DESC: (formData.job_description || formData.jobDescriptionText || "").substring(0, 500),
+        ADDITIONAL: (formData.additional_info || formData.additionalInformation || "").substring(0, 500)
+      },
+      tags: ["intake_completed_notification"]
+    };
+
+    const andrewNotificationResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/${audienceId}/members`, {
+      method: "PUT",
       headers: {
         "Authorization": `apikey ${mailchimpApiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        merge_fields: {
-          FNAME: "Andrew",
-          LAST_CUSTOMER: `${formData.firstName} ${formData.lastName}`,
-          CUSTOMER_EMAIL: formData.email,
-          ORDER_ID: orderId,
-          PACKAGE: order.package_name
-        },
-        tags: ["intake_completed_notification"]
-      }),
+      body: JSON.stringify(andrewNotificationData),
     });
+
+    if (!andrewNotificationResponse.ok) {
+      const errorText = await andrewNotificationResponse.text();
+      logStep("Andrew notification failed", { status: andrewNotificationResponse.status, error: errorText });
+    } else {
+      logStep("Andrew notification sent successfully");
+    }
 
     logStep("Intake notification process completed");
 

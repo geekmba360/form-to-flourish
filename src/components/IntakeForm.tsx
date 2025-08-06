@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { FileText, User, Briefcase, ArrowLeft } from "lucide-react";
+import { FileText, User, Briefcase, Upload, Phone, Mail, Globe } from "lucide-react";
 
 interface IntakeFormProps {
   orderId: string;
@@ -15,6 +16,7 @@ interface IntakeFormProps {
 
 export const IntakeForm = ({ orderId, onBack }: IntakeFormProps) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -34,79 +36,158 @@ export const IntakeForm = ({ orderId, onBack }: IntakeFormProps) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file type
+      const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      if (!allowedTypes.includes(file.type)) {
+        toast({
+          title: "Invalid file type",
+          description: "Please upload a PDF, DOC, or DOCX file.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Validate file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "Please upload a file smaller than 5MB.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
       setFormData(prev => ({ ...prev, resume: file }));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate required fields
+    if (!formData.name.trim()) {
+      toast({
+        title: "Missing information",
+        description: "Please enter your name.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!formData.email.trim()) {
+      toast({
+        title: "Missing information", 
+        description: "Please enter your email address.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!formData.jobDescription.trim() && !formData.jobUrl.trim()) {
+      toast({
+        title: "Missing information",
+        description: "Please provide either a job description or job posting URL.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
+      console.log('Submitting intake form for order:', orderId);
+      
       // Upload resume if provided
       let resumeUrl = null;
       if (formData.resume) {
         const fileExt = formData.resume.name.split('.').pop();
-        const fileName = `${orderId}-resume.${fileExt}`;
+        const fileName = `${orderId}-resume-${Date.now()}.${fileExt}`;
+        
+        console.log('Uploading resume:', fileName);
         
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('resumes')
           .upload(fileName, formData.resume);
 
-        if (uploadError) throw uploadError;
+        if (uploadError) {
+          console.error('Resume upload error:', uploadError);
+          throw new Error(`Failed to upload resume: ${uploadError.message}`);
+        }
+        
         resumeUrl = uploadData.path;
+        console.log('Resume uploaded successfully:', resumeUrl);
       }
 
-      // Insert form data into Supabase
+      // Insert intake form data
+      const intakeData = {
+        order_id: orderId,
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim() || null,
+        linkedin: formData.linkedin.trim() || null,
+        resume_url: resumeUrl,
+        job_url: formData.jobUrl.trim() || null,
+        job_description: formData.jobDescription.trim(),
+        additional_info: formData.additionalInfo.trim() || null
+      };
+
+      console.log('Inserting intake form data:', intakeData);
+
       const { error: insertError } = await supabase
         .from('intake_forms')
-        .insert({
-          order_id: orderId,
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          linkedin: formData.linkedin,
-          resume_url: resumeUrl,
-          job_url: formData.jobUrl,
-          job_description: formData.jobDescription,
-          additional_info: formData.additionalInfo
-        });
+        .insert(intakeData);
 
-      if (insertError) throw insertError;
+      if (insertError) {
+        console.error('Form submission error:', insertError);
+        throw new Error(`Failed to submit form: ${insertError.message}`);
+      }
+
+      console.log('Intake form submitted successfully');
 
       // Send notification emails
-      await supabase.functions.invoke('send-intake-notifications', {
-        body: {
-          orderId,
-          formData: {
-            ...formData,
-            resumeUrl
+      try {
+        console.log('Sending intake notifications...');
+        const { error: emailError } = await supabase.functions.invoke('send-intake-notifications', {
+          body: { 
+            orderId, 
+            formData: {
+              name: formData.name,
+              email: formData.email,
+              phone: formData.phone,
+              linkedin: formData.linkedin,
+              job_description: formData.jobDescription,
+              job_url: formData.jobUrl,
+              additional_info: formData.additionalInfo,
+              resumeUrl
+            }
           }
+        });
+
+        if (emailError) {
+          console.error('Email notification error:', emailError);
+          // Don't fail the whole process if email fails
+        } else {
+          console.log('Intake notifications sent successfully');
         }
-      });
+      } catch (emailError) {
+        console.error('Error sending notifications:', emailError);
+        // Continue even if email fails
+      }
 
       toast({
         title: "Success!",
         description: "Your intake form has been submitted. You'll receive your custom interview questions within 24 hours.",
       });
 
-      // Reset form or redirect
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        linkedin: "",
-        resume: null,
-        jobUrl: "",
-        jobDescription: "",
-        additionalInfo: ""
-      });
+      // Navigate to thank you page
+      navigate('/thank-you');
 
     } catch (error) {
       console.error('Error submitting form:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
       toast({
-        title: "Error",
-        description: "Failed to submit form. Please try again.",
+        title: "Submission Error",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
@@ -115,161 +196,171 @@ export const IntakeForm = ({ orderId, onBack }: IntakeFormProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="max-w-2xl mx-auto">
-        {onBack && (
-          <Button
-            variant="ghost"
-            onClick={onBack}
-            className="mb-4"
+    <Card className="shadow-medium">
+      <CardHeader>
+        <CardTitle className="text-2xl text-center flex items-center justify-center gap-2">
+          <FileText className="w-6 h-6 text-primary" />
+          Complete Your Intake Form
+        </CardTitle>
+        <p className="text-muted-foreground text-center">
+          Please provide your details so I can create your personalized interview questions
+        </p>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Personal Information */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-lg font-semibold">
+              <User className="w-5 h-5 text-primary" />
+              Personal Information
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <Label htmlFor="name">Full Name *</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  placeholder="Enter your full name"
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="email" className="flex items-center gap-2">
+                  <Mail className="w-4 h-4" />
+                  Email Address *
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  placeholder="your.email@example.com"
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="phone" className="flex items-center gap-2">
+                  <Phone className="w-4 h-4" />
+                  Phone Number
+                </Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  placeholder="(555) 123-4567"
+                />
+              </div>
+              
+              <div className="md:col-span-2">
+                <Label htmlFor="linkedin" className="flex items-center gap-2">
+                  <Globe className="w-4 h-4" />
+                  LinkedIn Profile URL
+                </Label>
+                <Input
+                  id="linkedin"
+                  type="url"
+                  value={formData.linkedin}
+                  onChange={(e) => handleInputChange('linkedin', e.target.value)}
+                  placeholder="https://linkedin.com/in/yourprofile"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Resume Upload */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-lg font-semibold">
+              <Upload className="w-5 h-5 text-primary" />
+              Resume/CV
+            </div>
+            
+            <div>
+              <Label htmlFor="resume">Upload Your Resume (PDF, DOC, DOCX - Max 5MB)</Label>
+              <Input
+                id="resume"
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={handleFileChange}
+                className="cursor-pointer"
+              />
+              {formData.resume && (
+                <p className="text-sm text-success mt-1 flex items-center gap-1">
+                  <FileText className="w-4 h-4" />
+                  Selected: {formData.resume.name}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Job Information */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-lg font-semibold">
+              <Briefcase className="w-5 h-5 text-primary" />
+              Job Information
+            </div>
+            
+            <div>
+              <Label htmlFor="jobUrl">Job Posting URL (Optional)</Label>
+              <Input
+                id="jobUrl"
+                type="url"
+                value={formData.jobUrl}
+                onChange={(e) => handleInputChange('jobUrl', e.target.value)}
+                placeholder="https://company.com/jobs/position"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="jobDescription">
+                Job Description * {formData.jobUrl ? '(Optional if URL provided above)' : ''}
+              </Label>
+              <Textarea
+                id="jobDescription"
+                value={formData.jobDescription}
+                onChange={(e) => handleInputChange('jobDescription', e.target.value)}
+                placeholder="Paste the complete job description here..."
+                className="min-h-[150px]"
+                required={!formData.jobUrl.trim()}
+              />
+            </div>
+          </div>
+
+          {/* Additional Information */}
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="additionalInfo">Additional Information (Optional)</Label>
+              <Textarea
+                id="additionalInfo"
+                value={formData.additionalInfo}
+                onChange={(e) => handleInputChange('additionalInfo', e.target.value)}
+                placeholder="Any specific areas you'd like me to focus on, company information, or other relevant details..."
+                className="min-h-[100px]"
+              />
+            </div>
+          </div>
+
+          <Button 
+            type="submit" 
+            className="w-full" 
+            size="lg"
+            disabled={isSubmitting}
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to confirmation
+            {isSubmitting ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Submitting...
+              </>
+            ) : (
+              "Submit Intake Form"
+            )}
           </Button>
-        )}
-        
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl text-center">Complete Your Intake Form</CardTitle>
-            <p className="text-muted-foreground text-center">
-              Please provide your details so we can create your personalized interview questions
-            </p>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Personal Information */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-lg font-semibold">
-                  <User className="w-5 h-5" />
-                  Personal Information
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="name">Full Name *</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="email">Email Address *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="linkedin">LinkedIn Profile URL</Label>
-                    <Input
-                      id="linkedin"
-                      type="url"
-                      value={formData.linkedin}
-                      onChange={(e) => handleInputChange('linkedin', e.target.value)}
-                      placeholder="https://linkedin.com/in/yourprofile"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Resume Upload */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-lg font-semibold">
-                  <FileText className="w-5 h-5" />
-                  Resume/CV
-                </div>
-                
-                <div>
-                  <Label htmlFor="resume">Upload Your Resume (PDF, DOC, DOCX)</Label>
-                  <Input
-                    id="resume"
-                    type="file"
-                    accept=".pdf,.doc,.docx"
-                    onChange={handleFileChange}
-                    className="cursor-pointer"
-                  />
-                  {formData.resume && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Selected: {formData.resume.name}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Job Information */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-lg font-semibold">
-                  <Briefcase className="w-5 h-5" />
-                  Job Information
-                </div>
-                
-                <div>
-                  <Label htmlFor="jobUrl">Job Posting URL</Label>
-                  <Input
-                    id="jobUrl"
-                    type="url"
-                    value={formData.jobUrl}
-                    onChange={(e) => handleInputChange('jobUrl', e.target.value)}
-                    placeholder="https://company.com/jobs/position"
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="jobDescription">Job Description *</Label>
-                  <Textarea
-                    id="jobDescription"
-                    value={formData.jobDescription}
-                    onChange={(e) => handleInputChange('jobDescription', e.target.value)}
-                    placeholder="Paste the complete job description here..."
-                    className="min-h-[150px]"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Additional Information */}
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="additionalInfo">Additional Information</Label>
-                  <Textarea
-                    id="additionalInfo"
-                    value={formData.additionalInfo}
-                    onChange={(e) => handleInputChange('additionalInfo', e.target.value)}
-                    placeholder="Any specific areas you'd like us to focus on, company information, or other relevant details..."
-                    className="min-h-[100px]"
-                  />
-                </div>
-              </div>
-
-              <Button 
-                type="submit" 
-                className="w-full" 
-                size="lg"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Submitting..." : "Submit Intake Form"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 };

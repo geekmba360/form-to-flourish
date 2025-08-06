@@ -16,6 +16,8 @@ const PaymentSuccess = () => {
 
   console.log('PaymentSuccess component rendered');
   console.log('Session ID from URL:', sessionId);
+  console.log('Full URL:', window.location.href);
+  console.log('Search params:', Object.fromEntries(searchParams.entries()));
 
   useEffect(() => {
     const fetchOrderId = async () => {

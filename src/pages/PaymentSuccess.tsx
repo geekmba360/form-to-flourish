@@ -15,9 +15,12 @@ const PaymentSuccess = () => {
   useEffect(() => {
     const fetchOrderId = async () => {
       if (!sessionId) {
+        console.log('No session ID found');
         setIsLoading(false);
         return;
       }
+
+      console.log('Fetching order for session ID:', sessionId);
 
       try {
         // Get order ID from the database using session ID
@@ -27,9 +30,12 @@ const PaymentSuccess = () => {
           .eq('stripe_session_id', sessionId)
           .maybeSingle();
 
+        console.log('Database query result:', { data, error });
+
         if (error) {
           console.error('Error fetching order:', error);
         } else if (data) {
+          console.log('Order found, setting order ID:', data.id);
           setOrderId(data.id);
           
           // Send order confirmation email

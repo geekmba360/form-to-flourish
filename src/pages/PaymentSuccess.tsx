@@ -100,6 +100,13 @@ const PaymentSuccess = () => {
             <p className="text-sm text-muted-foreground mb-4">
               Session ID: {sessionId?.slice(-8) || 'Not found'}
             </p>
+            <div className="text-xs text-muted-foreground bg-secondary p-3 rounded mb-4">
+              <p className="mb-2">If you completed payment successfully, please contact support at:</p>
+              <a href="mailto:andrew@nailyourjobinterview.com" className="text-primary hover:underline">
+                andrew@nailyourjobinterview.com
+              </a>
+              <p className="mt-2">Include your session ID above for faster assistance.</p>
+            </div>
             <Button onClick={() => navigate('/')} className="mt-4">
               Return Home
             </Button>
@@ -167,9 +174,27 @@ const PaymentSuccess = () => {
         ) : (
           <Card>
             <CardContent className="p-6 text-center">
-              <p className="text-muted-foreground">
-                Unable to load intake form. Please contact support with your order reference.
+              <p className="text-muted-foreground mb-4">
+                Unable to load intake form. This might be a temporary issue.
               </p>
+              <div className="bg-secondary p-4 rounded-lg mb-4">
+                <p className="text-sm font-medium mb-2">What to do next:</p>
+                <ol className="text-sm text-left space-y-1">
+                  <li>1. Try refreshing this page</li>
+                  <li>2. Check your email for order confirmation</li>
+                  <li>3. Contact support if the issue persists</li>
+                </ol>
+              </div>
+              <div className="space-y-2">
+                <Button onClick={() => window.location.reload()} className="mr-2">
+                  Refresh Page
+                </Button>
+                <Button variant="outline" asChild>
+                  <a href="mailto:andrew@nailyourjobinterview.com?subject=Intake Form Issue&body=Session ID: {sessionId}">
+                    Contact Support
+                  </a>
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}

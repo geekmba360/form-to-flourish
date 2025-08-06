@@ -56,7 +56,12 @@ serve(async (req) => {
     
     if (!mailchimpApiKey) {
       logStep("WARNING: No Mailchimp API key found, skipping email");
-      return new Response(JSON.stringify({ success: true, warning: "Email not sent - no API key" }), {
+      logStep("SETUP REQUIRED: Please set MAILCHIMP_API_KEY environment variable in Supabase Dashboard > Settings > Environment Variables");
+      return new Response(JSON.stringify({ 
+        success: true, 
+        warning: "Email not sent - Mailchimp API key not configured",
+        setup_required: "Please configure MAILCHIMP_API_KEY environment variable"
+      }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       });

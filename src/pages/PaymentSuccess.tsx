@@ -12,6 +12,13 @@ const PaymentSuccess = () => {
   const [orderId, setOrderId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Debug logs
+  console.log('PaymentSuccess component rendered');
+  console.log('Current URL search params:', searchParams.toString());
+  console.log('Session ID from URL:', sessionId);
+  console.log('Current orderId state:', orderId);
+  console.log('Current isLoading state:', isLoading);
+
   useEffect(() => {
     const fetchOrderId = async () => {
       if (!sessionId) {

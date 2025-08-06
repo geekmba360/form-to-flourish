@@ -43,17 +43,46 @@ const PaymentSuccess = () => {
         return;
       }
 
-      console.log('Fetching order for session ID:', sessionId);
+      // Trim and clean the session ID
+      const cleanSessionId = sessionId.trim();
+      console.log('Raw session ID from URL:', JSON.stringify(sessionId));
+      console.log('Cleaned session ID:', JSON.stringify(cleanSessionId));
+      console.log('Session ID length:', cleanSessionId.length);
+      console.log('Session ID char codes:', cleanSessionId.split('').map(c => c.charCodeAt(0)));
 
       try {
         // Get order ID from the database using session ID
+        console.log('Querying database for session ID:', cleanSessionId);
         const { data, error } = await supabase
           .from('orders')
-          .select('id')
-          .eq('stripe_session_id', sessionId)
+          .select('id, stripe_session_id')
+          .eq('stripe_session_id', cleanSessionId)
           .maybeSingle();
 
         console.log('Database query result:', { data, error });
+
+        // If no exact match, try to find any orders with similar session IDs for debugging
+        if (!data && !error) {
+          console.log('No exact match found, checking for any recent orders...');
+          const { data: recentOrders, error: recentError } = await supabase
+            .from('orders')
+            .select('id, stripe_session_id, created_at')
+            .order('created_at', { ascending: false })
+            .limit(5);
+          
+          console.log('Recent orders for debugging:', recentOrders);
+          if (recentOrders) {
+            recentOrders.forEach((order, index) => {
+              console.log(`Order ${index + 1}:`, {
+                id: order.id,
+                sessionId: JSON.stringify(order.stripe_session_id),
+                sessionIdLength: order.stripe_session_id?.length,
+                matches: order.stripe_session_id === cleanSessionId,
+                created: order.created_at
+              });
+            });
+          }
+        }
 
         if (error) {
           console.error('Error fetching order:', error);
@@ -70,12 +99,17 @@ const PaymentSuccess = () => {
             await supabase.functions.invoke('send-order-confirmation', {
               body: { orderId: data.id }
             });
+            console.log('Order confirmation email sent successfully');
           } catch (emailError) {
             console.error('Error sending confirmation email:', emailError);
             // Don't fail the whole process if email fails
           }
         } else {
-          console.log('No order found for session ID:', sessionId);
+          console.log('No order found for session ID:', cleanSessionId);
+          console.log('This could be due to:');
+          console.log('1. Session ID mismatch or encoding issues');
+          console.log('2. Order not yet created in database');
+          console.log('3. Different session ID format than expected');
         }
       } catch (error) {
         console.error('Error processing payment success:', error);

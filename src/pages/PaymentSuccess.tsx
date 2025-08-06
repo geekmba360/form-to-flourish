@@ -144,57 +144,53 @@ const PaymentSuccess = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="max-w-md w-full text-center">
-        <CardHeader>
-          <div className="mx-auto w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mb-4">
-            <CheckCircle className="w-8 h-8 text-success" />
-          </div>
-          <CardTitle className="text-2xl text-foreground">Payment Successful!</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <p className="text-muted-foreground text-lg leading-relaxed">
-            Thank you for your purchase! To get started on your personalized interview questions, 
-            please complete the intake form with your details.
-          </p>
-          
-          {sessionId && (
-            <div className="text-sm text-muted-foreground bg-secondary p-3 rounded border">
-              <strong>Order Reference:</strong> {sessionId.slice(-8)}
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-2xl mx-auto">
+        <Card className="mb-6">
+          <CardHeader>
+            <div className="mx-auto w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mb-4">
+              <CheckCircle className="w-8 h-8 text-success" />
             </div>
-          )}
-          
-          <div className="bg-card border rounded-lg p-4 space-y-3">
-            <div className="flex items-center gap-2 text-primary font-medium">
-              <Mail className="w-5 h-5" />
-              <span>Check your email for order confirmation</span>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              You'll receive an email with your order details and a backup link to this form.
+            <CardTitle className="text-2xl text-center text-foreground">Payment Successful!</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <p className="text-muted-foreground text-lg leading-relaxed text-center">
+              Thank you for your purchase! Please complete the intake form below to get started on your personalized interview questions.
             </p>
-          </div>
-
-          <div className="pt-4 space-y-3">
-            <Button 
-              onClick={handleContinueToForm}
-              className="w-full"
-              size="lg"
-              disabled={isLoading || !orderId}
-            >
-              {isLoading ? "Loading..." : (
-                <>
-                  <ArrowRight className="w-4 h-4 mr-2" />
-                  Complete Intake Form
-                </>
-              )}
-            </Button>
             
-            <p className="text-xs text-muted-foreground text-center">
-              You can also complete this form later using the link in your email
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+            {sessionId && (
+              <div className="text-sm text-muted-foreground bg-secondary p-3 rounded border text-center">
+                <strong>Order Reference:</strong> {sessionId.slice(-8)}
+              </div>
+            )}
+            
+            <div className="bg-card border rounded-lg p-4 space-y-3">
+              <div className="flex items-center gap-2 text-primary font-medium justify-center">
+                <Mail className="w-5 h-5" />
+                <span>Check your email for order confirmation</span>
+              </div>
+              <p className="text-sm text-muted-foreground text-center">
+                You'll receive an email with your order details and additional information.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Always show the intake form if we have an orderId */}
+        {orderId ? (
+          <IntakeForm orderId={orderId} />
+        ) : (
+          <Card>
+            <CardContent className="p-6">
+              <div className="text-center">
+                <p className="text-muted-foreground">
+                  {isLoading ? "Loading your order information..." : "Unable to load order information. Please contact support."}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 };

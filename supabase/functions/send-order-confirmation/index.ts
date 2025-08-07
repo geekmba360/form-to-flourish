@@ -85,7 +85,7 @@ serve(async (req) => {
     logStep("Adding customer to Mailchimp", { email: order.customer_email });
 
     const mailchimpResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/${audienceId}/members`, {
-      method: "PUT",
+      method: "POST",
       headers: {
         "Authorization": `apikey ${mailchimpApiKey}`,
         "Content-Type": "application/json",
@@ -121,7 +121,7 @@ serve(async (req) => {
     };
 
     const notificationResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/${audienceId}/members`, {
-      method: "PUT",
+      method: "POST",
       headers: {
         "Authorization": `apikey ${mailchimpApiKey}`,
         "Content-Type": "application/json",

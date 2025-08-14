@@ -46,26 +46,45 @@ const Admin = () => {
   }, []);
 
   const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user) {
-      navigate("/auth");
-      return;
-    }
-    setUser(session.user);
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!session?.user) {
+    try {
+      console.log("Checking auth...");
+      const { data: { session }, error } = await supabase.auth.getSession();
+      console.log("Session:", session);
+      
+      if (error) {
+        console.error("Auth error:", error);
         navigate("/auth");
+        return;
       }
-    });
+      
+      if (!session?.user) {
+        console.log("No user found, redirecting to auth");
+        navigate("/auth");
+        return;
+      }
+      
+      console.log("User authenticated:", session.user.email);
+      setUser(session.user);
 
-    return () => subscription.unsubscribe();
+      // Listen for auth changes
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        console.log("Auth state changed:", event, session);
+        if (!session?.user) {
+          navigate("/auth");
+        }
+      });
+
+      return () => subscription.unsubscribe();
+    } catch (error) {
+      console.error("Auth check failed:", error);
+      navigate("/auth");
+    }
   };
 
   const loadSubmissions = async () => {
     setIsLoading(true);
     try {
+      console.log("Loading submissions...");
       const { data: intakeData, error: intakeError } = await supabase
         .from("intake_forms")
         .select(`
@@ -73,6 +92,8 @@ const Admin = () => {
           orders (*)
         `)
         .order("created_at", { ascending: false });
+
+      console.log("Query result:", { intakeData, intakeError });
 
       if (intakeError) throw intakeError;
 
@@ -82,8 +103,10 @@ const Admin = () => {
         order: Array.isArray(item.orders) ? item.orders[0] : item.orders
       })) || [];
 
+      console.log("Formatted data:", formattedData);
       setSubmissions(formattedData as any);
     } catch (error: any) {
+      console.error("Load submissions error:", error);
       toast({
         title: "Error",
         description: "Failed to load submissions: " + error.message,

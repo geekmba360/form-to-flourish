@@ -61,12 +61,7 @@ serve(async (req) => {
       status: "subscribed",
       merge_fields: {
         FNAME: formData.firstName || formData.name || customerName,
-        LNAME: formData.lastName || "",
-        PHONE: formData.phone || formData.phoneNumber || "",
-        LINKEDIN: formData.linkedin || formData.linkedinProfile || "",
-        JOBDESC: formData.job_description || formData.jobDescriptionText || formData.jobDescriptionLink || "",
-        ADDITIONAL: formData.additional_info || formData.additionalInformation || "",
-        ORDER_ID: orderId
+        LNAME: formData.lastName || ""
       },
       tags: ["intake_completed"]
     };

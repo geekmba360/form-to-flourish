@@ -27,7 +27,9 @@ const App = () => (
           <Route path="/intake-form" element={<IntakeForm />} />
           <Route path="/thank-you" element={<ThankYou />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/auth/" element={<Auth />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/" element={<Admin />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

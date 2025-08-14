@@ -54,6 +54,7 @@ const Auth = () => {
             description: "Only authorized email addresses can create admin accounts.",
             variant: "destructive",
           });
+          setIsLoading(false);
           return;
         }
 
@@ -79,6 +80,7 @@ const Auth = () => {
             description: "You don't have admin access to this system.",
             variant: "destructive",
           });
+          setIsLoading(false);
           return;
         }
 

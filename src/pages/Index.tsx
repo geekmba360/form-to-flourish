@@ -10,10 +10,13 @@ import { Button } from "@/components/ui/button";
 const Index = () => {
   return (
     <div className="min-h-screen">
-      {/* DEBUG: Test auth route - should be very visible */}
-      <div className="w-full bg-red-500 text-white p-4 text-center">
-        <Button asChild variant="secondary" size="lg">
-          <Link to="/auth">🔑 ADMIN LOGIN TEST BUTTON 🔑</Link>
+      {/* DEBUG: Test links using React Router */}
+      <div className="w-full bg-yellow-400 text-black p-4 text-center space-x-4">
+        <Button asChild variant="default">
+          <Link to="/test">Test Route</Link>
+        </Button>
+        <Button asChild variant="default">
+          <Link to="/auth">Auth Route</Link>
         </Button>
       </div>
       

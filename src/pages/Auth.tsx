@@ -36,12 +36,27 @@ const Auth = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  const ALLOWED_ADMIN_EMAILS = [
+    "andrew@nailyourjobinterview.com",
+    // Add more admin emails here as needed
+  ];
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
       if (isSignUp) {
+        // Check if email is allowed for admin access
+        if (!ALLOWED_ADMIN_EMAILS.includes(email.toLowerCase())) {
+          toast({
+            title: "Access Denied",
+            description: "Only authorized email addresses can create admin accounts.",
+            variant: "destructive",
+          });
+          return;
+        }
+
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -57,6 +72,16 @@ const Auth = () => {
           description: "We've sent you a confirmation link.",
         });
       } else {
+        // For login, also check if user is authorized admin
+        if (!ALLOWED_ADMIN_EMAILS.includes(email.toLowerCase())) {
+          toast({
+            title: "Access Denied", 
+            description: "You don't have admin access to this system.",
+            variant: "destructive",
+          });
+          return;
+        }
+
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,

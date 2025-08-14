@@ -117,6 +117,17 @@ const Admin = () => {
     }
   };
 
+  const formatDate = (dateString: string | undefined, formatStr: string = "MMM dd, yyyy HH:mm") => {
+    if (!dateString) return "N/A";
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "Invalid Date";
+      return format(date, formatStr);
+    } catch {
+      return "Invalid Date";
+    }
+  };
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/auth");
@@ -179,7 +190,7 @@ const Admin = () => {
                   {submissions.map((submission) => (
                     <TableRow key={submission.id}>
                       <TableCell>
-                        {format(new Date(submission.created_at), "MMM dd, yyyy HH:mm")}
+                        {formatDate(submission.created_at)}
                       </TableCell>
                       <TableCell>
                         <div>
@@ -230,7 +241,7 @@ const Admin = () => {
                                   <div className="space-y-1">
                                     <p><strong>Package:</strong> {submission.order?.package_name}</p>
                                     <p><strong>Amount:</strong> {formatCurrency(submission.order?.amount || 0)}</p>
-                                    <p><strong>Order Date:</strong> {format(new Date(submission.order?.created_at), "MMM dd, yyyy")}</p>
+                                    <p><strong>Order Date:</strong> {formatDate(submission.order?.created_at, "MMM dd, yyyy")}</p>
                                     <p><strong>Order ID:</strong> {submission.order_id}</p>
                                   </div>
                                 </div>

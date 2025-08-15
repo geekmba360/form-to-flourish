@@ -132,7 +132,7 @@ serve(async (req) => {
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://vbgyzisstcvrikdhpiil.lovable.app/intake-form?order_id=${orderId}"
+          <a href="https://form-to-flourish.lovable.app/intake-form?order_id=${orderId}"
            style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
            Complete Your Intake Form</a>
         </div>
@@ -179,7 +179,7 @@ serve(async (req) => {
           </ul>
         </div>
         
-        <p><a href="https://vbgyzisstcvrikdhpiil.lovable.app/admin" 
+        <p><a href="https://form-to-flourish.lovable.app/admin" 
              style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
            View in Admin Panel</a></p>
         

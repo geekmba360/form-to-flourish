@@ -19,9 +19,11 @@ export type Database = {
           additional_info: string | null
           created_at: string
           email: string
+          first_name: string | null
           id: string
           job_description: string
           job_url: string | null
+          last_name: string | null
           linkedin: string | null
           name: string
           order_id: string
@@ -33,9 +35,11 @@ export type Database = {
           additional_info?: string | null
           created_at?: string
           email: string
+          first_name?: string | null
           id?: string
           job_description: string
           job_url?: string | null
+          last_name?: string | null
           linkedin?: string | null
           name: string
           order_id: string
@@ -47,9 +51,11 @@ export type Database = {
           additional_info?: string | null
           created_at?: string
           email?: string
+          first_name?: string | null
           id?: string
           job_description?: string
           job_url?: string | null
+          last_name?: string | null
           linkedin?: string | null
           name?: string
           order_id?: string

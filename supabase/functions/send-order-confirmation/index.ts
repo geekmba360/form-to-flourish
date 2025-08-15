@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { Resend } from "npm:resend@4.0.0";
+import Stripe from "https://esm.sh/stripe@14.21.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -43,6 +44,36 @@ serve(async (req) => {
     }
     logStep("Order retrieved", { packageName: order.package_name, email: order.customer_email });
 
+    // Get actual customer email from Stripe session
+    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+      apiVersion: "2023-10-16",
+    });
+
+    let actualCustomerEmail = order.customer_email;
+    if (order.stripe_session_id) {
+      try {
+        const session = await stripe.checkout.sessions.retrieve(order.stripe_session_id);
+        if (session.customer_details?.email) {
+          actualCustomerEmail = session.customer_details.email;
+          logStep("Retrieved actual customer email from Stripe", { email: actualCustomerEmail });
+          
+          // Update the order with the real customer email
+          const { error: updateEmailError } = await supabaseClient
+            .from("orders")
+            .update({ customer_email: actualCustomerEmail })
+            .eq("id", orderId);
+          
+          if (updateEmailError) {
+            logStep("Failed to update customer email in order", { error: updateEmailError });
+          } else {
+            logStep("Updated order with actual customer email");
+          }
+        }
+      } catch (stripeError) {
+        logStep("Failed to retrieve customer email from Stripe", { error: stripeError });
+      }
+    }
+
     // Update order status to completed
     const { error: updateError } = await supabaseClient
       .from("orders")
@@ -54,10 +85,10 @@ serve(async (req) => {
     }
 
     // Extract customer name from email (fallback)
-    const emailParts = order.customer_email.split('@');
+    const emailParts = actualCustomerEmail.split('@');
     const defaultName = emailParts[0].charAt(0).toUpperCase() + emailParts[0].slice(1);
 
-    logStep("Sending order confirmation email to customer", { email: order.customer_email });
+    logStep("Sending order confirmation email to customer", { email: actualCustomerEmail });
 
     // Send confirmation email to customer
     const customerEmailHtml = `
@@ -103,7 +134,7 @@ serve(async (req) => {
     try {
       await resend.emails.send({
         from: "Andrew <andrew@updates.nailyourjobinterview.com>",
-        to: [order.customer_email],
+        to: [actualCustomerEmail],
         replyTo: "andrew@nailyourjobinterview.com",
         subject: "Thank you for your purchase - Next steps inside!",
         html: customerEmailHtml,
@@ -126,7 +157,7 @@ serve(async (req) => {
           <h3 style="margin-top: 0; color: #1f2937;">Customer Details:</h3>
           <ul style="margin: 0; padding-left: 20px;">
             <li><strong>Name:</strong> ${defaultName}</li>
-            <li><strong>Email:</strong> ${order.customer_email}</li>
+            <li><strong>Email:</strong> ${actualCustomerEmail}</li>
             <li><strong>Package:</strong> ${order.package_name}</li>
             <li><strong>Amount:</strong> $${(order.amount / 100).toFixed(2)}</li>
             <li><strong>Order ID:</strong> ${orderId}</li>

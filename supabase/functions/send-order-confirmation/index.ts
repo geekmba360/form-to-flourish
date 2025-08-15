@@ -117,11 +117,13 @@ serve(async (req) => {
           </ul>
         </div>
         
-        <div style="background-color: #fef3c7; padding: 15px; border-radius: 6px; border-left: 4px solid #f59e0b; margin: 20px 0;">
-          <p style="margin: 0;"><strong>Important:</strong> If you haven't filled out your intake form yet, please complete it now using the link below.</p>
+        <div style="background-color: #dc2626; color: white; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
+          <h3 style="margin: 0 0 10px 0; color: white;">⚠️ ACTION REQUIRED ⚠️</h3>
+          <p style="margin: 0; font-size: 16px;"><strong>Please complete your intake form to receive your customized report!</strong></p>
         </div>
         
-        <p><a href="https://lovable.dev/projects/bd74c0ea-6ce0-4302-b8ee-2b2e01dfc4a6/preview/intake-form?order_id=${orderId}"
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="https://nailyourjobinterview.com/intake-form?order_id=${orderId}"
            style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
            Complete Your Intake Form</a></p>
         

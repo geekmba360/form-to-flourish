@@ -74,7 +74,9 @@ export const Footer = () => {
             <ul className="space-y-3 text-sm text-muted-foreground">
               <li>
                 <a 
-                  href="/privacy" 
+                  href="https://nailyourjobinterview.com/disclosure/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
                   className="hover:text-primary transition-colors"
                 >
                   Privacy Policy
@@ -82,7 +84,9 @@ export const Footer = () => {
               </li>
               <li>
                 <a 
-                  href="/terms" 
+                  href="https://nailyourjobinterview.com/disclosure/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
                   className="hover:text-primary transition-colors"
                 >
                   Terms of Service
@@ -90,7 +94,9 @@ export const Footer = () => {
               </li>
               <li>
                 <a 
-                  href="/refund" 
+                  href="https://nailyourjobinterview.com/disclosure/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
                   className="hover:text-primary transition-colors"
                 >
                   Refund Policy

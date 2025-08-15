@@ -111,11 +111,15 @@ serve(async (req) => {
         <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <h3 style="margin-top: 0; color: #1f2937;">What happens next?</h3>
           <ul style="margin: 0; padding-left: 20px;">
-            <li><strong>Complete your intake form:</strong> Please fill out your intake form so we can customize your experience.</li>
+            <li><strong>Complete your intake form:</strong> Please fill out your intake form so we can customize your experience. This is required to receive your report.</li>
             <li><strong>Anticipated Interview Questions Report:</strong> You'll receive your customized report within 24 hours of submitting the intake form.</li>
             ${order.package_name.includes('Coaching') || order.package_name.includes('coaching') ? 
               '<li><strong>Coaching Session:</strong> We\'ll be in touch to schedule your first coaching session.</li>' : ''}
           </ul>
+        </div>
+        
+        <div style="background-color: #fef3c7; padding: 15px; border-radius: 6px; border-left: 4px solid #f59e0b; margin: 20px 0;">
+          <p style="margin: 0;"><strong>Important:</strong> If you haven't filled out your intake form yet, please complete it now using the link below.</p>
         </div>
         
         <p><a href="https://vbgyzisstcvrikdhpiil.supabase.co/intake-form?order_id=${orderId}" 

@@ -1,10 +1,13 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { Resend } from "npm:resend@4.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
@@ -50,90 +53,107 @@ serve(async (req) => {
       logStep("Failed to update order status", { error: updateError });
     }
 
-    // Send order confirmation email using Mailchimp
-    const mailchimpApiKey = Deno.env.get("MAILCHIMP_API_KEY");
-    const audienceId = Deno.env.get("MAILCHIMP_AUDIENCE_ID") || "d7102b6132";
-    
-    if (!mailchimpApiKey) {
-      logStep("WARNING: No Mailchimp API key found, skipping email");
-      return new Response(JSON.stringify({ success: true, warning: "Email not sent - no API key" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
-    }
-
-    const serverPrefix = mailchimpApiKey.split('-')[1];
-    
     // Extract customer name from email (fallback)
     const emailParts = order.customer_email.split('@');
     const defaultName = emailParts[0].charAt(0).toUpperCase() + emailParts[0].slice(1);
 
-    // Add customer to Mailchimp audience
-    const memberData = {
-      email_address: order.customer_email,
-      status: "subscribed",
-      merge_fields: {
-        FNAME: defaultName,
-        ORDER_ID: orderId,
-        PACKAGE: order.package_name,
-        AMOUNT: (order.amount / 100).toFixed(2),
-        INTAKE_LINK: `${req.headers.get("origin") || "https://your-domain.com"}/intake-form?order_id=${orderId}`
-      },
-      tags: ["order_confirmation", "anticipate_questions"]
-    };
+    logStep("Sending order confirmation email to customer", { email: order.customer_email });
 
-    logStep("Adding customer to Mailchimp", { email: order.customer_email });
+    // Send confirmation email to customer
+    const customerEmailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #2563eb;">Thank you for your purchase!</h2>
+        
+        <p>Hi ${defaultName},</p>
+        
+        <p>Thank you for purchasing the <strong>${order.package_name}</strong> package. We're excited to help you nail your job interview!</p>
+        
+        <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #1f2937;">Order Details:</h3>
+          <ul style="margin: 0; padding-left: 20px;">
+            <li><strong>Package:</strong> ${order.package_name}</li>
+            <li><strong>Amount:</strong> $${(order.amount / 100).toFixed(2)}</li>
+            <li><strong>Order ID:</strong> ${orderId}</li>
+          </ul>
+        </div>
+        
+        <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #1f2937;">What happens next?</h3>
+          <ul style="margin: 0; padding-left: 20px;">
+            <li><strong>Complete your intake form:</strong> Please fill out your intake form so we can customize your experience.</li>
+            <li><strong>Anticipated Interview Questions Report:</strong> You'll receive your customized report within 24 hours of submitting the intake form.</li>
+            ${order.package_name.includes('Coaching') || order.package_name.includes('coaching') ? 
+              '<li><strong>Coaching Session:</strong> We\'ll be in touch to schedule your first coaching session.</li>' : ''}
+          </ul>
+        </div>
+        
+        <p><a href="https://vbgyzisstcvrikdhpiil.supabase.co/intake-form?order_id=${orderId}" 
+           style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+           Complete Your Intake Form</a></p>
+        
+        <p>If you have any questions or need assistance, please don't hesitate to email me at 
+        <a href="mailto:andrew@nailyourjobinterview.com" style="color: #2563eb;">andrew@nailyourjobinterview.com</a>.</p>
+        
+        <p>Best regards,<br>
+        Andrew<br>
+        <strong>Nail Your Job Interview</strong></p>
+      </div>
+    `;
 
-    const mailchimpResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/${audienceId}/members`, {
-      method: "POST",
-      headers: {
-        "Authorization": `apikey ${mailchimpApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(memberData),
-    });
-
-    const mailchimpResult = await mailchimpResponse.text();
-    
-    if (!mailchimpResponse.ok) {
-      logStep("Mailchimp API error", { 
-        status: mailchimpResponse.status, 
-        error: mailchimpResult,
-        memberData: memberData 
+    try {
+      await resend.emails.send({
+        from: "Andrew from Nail Your Job Interview <updates@nailyourjobinterview.com>",
+        to: [order.customer_email],
+        replyTo: "andrew@nailyourjobinterview.com",
+        subject: "Thank you for your purchase - Next steps inside!",
+        html: customerEmailHtml,
       });
-    } else {
-      logStep("Customer added to Mailchimp successfully");
+      logStep("Customer confirmation email sent successfully");
+    } catch (error) {
+      logStep("Customer email failed", { error: error.message });
     }
 
-    // Send notification to Andrew
-    const andrewNotificationData = {
-      email_address: "andrew@nailyourjobinterview.com",
-      status: "subscribed",
-      merge_fields: {
-        FNAME: "Andrew",
-        ORDER_ID: orderId,
-        CUSTOMER_EMAIL: order.customer_email,
-        PACKAGE: order.package_name,
-        AMOUNT: (order.amount / 100).toFixed(2),
-        CUSTOMER_NAME: defaultName
-      },
-      tags: ["new_order_notification"]
-    };
+    // Send notification email to Andrew
+    logStep("Sending notification email to Andrew");
 
-    const notificationResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/${audienceId}/members`, {
-      method: "POST",
-      headers: {
-        "Authorization": `apikey ${mailchimpApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(andrewNotificationData),
-    });
+    const andrewEmailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #dc2626;">New Purchase Notification</h2>
+        
+        <p>A customer has made a purchase!</p>
+        
+        <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #1f2937;">Customer Details:</h3>
+          <ul style="margin: 0; padding-left: 20px;">
+            <li><strong>Name:</strong> ${defaultName}</li>
+            <li><strong>Email:</strong> ${order.customer_email}</li>
+            <li><strong>Package:</strong> ${order.package_name}</li>
+            <li><strong>Amount:</strong> $${(order.amount / 100).toFixed(2)}</li>
+            <li><strong>Order ID:</strong> ${orderId}</li>
+          </ul>
+        </div>
+        
+        <p><a href="https://vbgyzisstcvrikdhpiil.supabase.co/admin" 
+             style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+           View in Admin Panel</a></p>
+        
+        <div style="background-color: #fef3c7; padding: 15px; border-radius: 6px; border-left: 4px solid #f59e0b; margin: 20px 0;">
+          <p style="margin: 0;"><strong>Reminder:</strong> Customer will need to complete intake form before receiving the report.</p>
+        </div>
+      </div>
+    `;
 
-    if (!notificationResponse.ok) {
-      const notificationErrorText = await notificationResponse.text();
-      logStep("Notification email error", { status: notificationResponse.status, error: notificationErrorText });
-    } else {
-      logStep("Notification email sent to Andrew successfully");
+    try {
+      await resend.emails.send({
+        from: "Nail Your Job Interview Notifications <updates@nailyourjobinterview.com>",
+        to: ["andrew@nailyourjobinterview.com"],
+        replyTo: "andrew@nailyourjobinterview.com",
+        subject: `New Purchase: ${defaultName} - ${order.package_name}`,
+        html: andrewEmailHtml,
+      });
+      logStep("Andrew notification email sent successfully");
+    } catch (error) {
+      logStep("Andrew notification email failed", { error: error.message });
     }
 
     logStep("Order confirmation process completed");

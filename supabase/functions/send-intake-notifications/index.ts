@@ -82,7 +82,7 @@ serve(async (req) => {
 
     try {
       await resend.emails.send({
-        from: "Andrew from Nail Your Job Interview <onboarding@resend.dev>",
+        from: "Andrew from Nail Your Job Interview <updates@nailyourjobinterview.com>",
         to: [customerEmail],
         subject: "Intake Form Received - Your Report is Coming Soon!",
         html: customerEmailHtml,
@@ -125,7 +125,7 @@ serve(async (req) => {
 
     try {
       await resend.emails.send({
-        from: "Nail Your Job Interview Notifications <onboarding@resend.dev>",
+        from: "Nail Your Job Interview Notifications <updates@nailyourjobinterview.com>",
         to: ["andrew@nailyourjobinterview.com"],
         subject: `New Intake Form: ${customerName} (${order.package_name})`,
         html: andrewEmailHtml,

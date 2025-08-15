@@ -110,7 +110,7 @@ serve(async (req) => {
           </ul>
         </div>
         
-        <p><a href="https://vbgyzisstcvrikdhpiil.supabase.co/admin" 
+        <p><a href="https://form-to-flourish.lovable.app/auth" 
              style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
            View Submission Details in Admin Panel</a></p>
         

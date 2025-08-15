@@ -7,9 +7,9 @@ import { useToast } from "@/hooks/use-toast";
 export const PricingSection = () => {
   const { toast } = useToast();
   
-  const handlePurchase = async (packageId: string) => {
+  const handlePurchase = async (packageId: string, event?: React.MouseEvent | React.KeyboardEvent) => {
     // Prevent double clicks by disabling the button temporarily
-    const button = event?.target as HTMLButtonElement;
+    const button = event?.currentTarget as HTMLButtonElement;
     if (button) {
       button.disabled = true;
       button.style.opacity = '0.7';
@@ -143,8 +143,17 @@ export const PricingSection = () => {
                 <Button 
                   variant={pkg.popular ? "cta" : "default"} 
                   size="lg" 
-                  className="w-full"
-                  onClick={() => handlePurchase(pkg.id)}
+                  className="w-full focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                  onClick={(e) => handlePurchase(pkg.id, e)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handlePurchase(pkg.id, e);
+                    }
+                  }}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`Purchase ${pkg.name} package for $${pkg.price}`}
                 >
                   {pkg.cta}
                 </Button>

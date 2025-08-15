@@ -102,7 +102,7 @@ serve(async (req) => {
 
     try {
       await resend.emails.send({
-        from: "Andrew from Nail Your Job Interview <noreply@updates.nailyourjobinterview.com>",
+        from: "Andrew <andrew@updates.nailyourjobinterview.com>",
         to: [order.customer_email],
         replyTo: "andrew@nailyourjobinterview.com",
         subject: "Thank you for your purchase - Next steps inside!",

@@ -67,11 +67,7 @@ serve(async (req) => {
           </ul>
         </div>
         
-        <p>If you haven't completed your intake form yet, you can do so here: 
-        <a href="https://vbgyzisstcvrikdhpiil.supabase.co/intake-form?order_id=${orderId}" 
-           style="color: #2563eb; text-decoration: none;">Complete Intake Form</a></p>
-        
-        <p>If you have any questions or need assistance, please don't hesitate to email me at 
+        <p>If you have any questions or need assistance, please don't hesitate to email me at
         <a href="mailto:andrew@nailyourjobinterview.com" style="color: #2563eb;">andrew@nailyourjobinterview.com</a>.</p>
         
         <p>Best regards,<br>

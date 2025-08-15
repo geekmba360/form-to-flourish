@@ -82,8 +82,9 @@ serve(async (req) => {
 
     try {
       await resend.emails.send({
-        from: "Andrew from Nail Your Job Interview <updates@nailyourjobinterview.com>",
+        from: "Andrew from Nail Your Job Interview <andrew@updates.nailyourjobinterview.com>",
         to: [customerEmail],
+        replyTo: "andrew@nailyourjobinterview.com",
         subject: "Intake Form Received - Your Report is Coming Soon!",
         html: customerEmailHtml,
       });
@@ -125,8 +126,9 @@ serve(async (req) => {
 
     try {
       await resend.emails.send({
-        from: "Nail Your Job Interview Notifications <updates@nailyourjobinterview.com>",
+        from: "Nail Your Job Interview <andrew@updates.nailyourjobinterview.com>",
         to: ["andrew@nailyourjobinterview.com"],
+        replyTo: "andrew@nailyourjobinterview.com",
         subject: `New Intake Form: ${customerName} (${order.package_name})`,
         html: andrewEmailHtml,
       });

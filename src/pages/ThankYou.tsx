@@ -47,6 +47,23 @@ const ThankYou = () => {
             </div>
           </div>
 
+          <div className="bg-secondary/50 rounded-lg p-4 mb-6">
+            <h4 className="font-medium text-foreground mb-2">
+              While You Wait...
+            </h4>
+            <p className="text-sm text-muted-foreground mb-3">
+              Check out my latest interview tips and career advice to continue your prep:
+            </p>
+            <a 
+              href="https://nailyourjobinterview.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-primary hover:text-primary-hover transition-colors text-sm font-medium"
+            >
+              Visit NailYourJobInterview.com →
+            </a>
+          </div>
+
           <div className="pt-6">
             <Button asChild variant="outline" size="lg">
               <Link to="/">

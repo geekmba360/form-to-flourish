@@ -83,7 +83,26 @@ export const AboutSection = () => {
 
           <div className="bg-primary/5 p-6 rounded-xl text-center">
             <p className="text-foreground">
-              I run <strong className="text-primary">NailYourJobInterview.com</strong>, where I help professionals at all levels navigate job transitions with strategy and confidence.
+              I run <strong className="text-primary">
+                <a 
+                  href="https://nailyourjobinterview.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-primary-hover transition-colors"
+                >
+                  NailYourJobInterview.com
+                </a>
+              </strong>, where I help professionals at all levels navigate job transitions with strategy and confidence.
+            </p>
+            <p className="text-sm text-muted-foreground mt-3">
+              <a 
+                href="https://nailyourjobinterview.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary hover:text-primary-hover transition-colors"
+              >
+                Read my latest interview tips and career advice →
+              </a>
             </p>
           </div>
         </div>

@@ -129,12 +129,7 @@ export const PricingSection = () => {
                   variant={pkg.popular ? "cta" : "default"} 
                   size="lg" 
                   className="w-full"
-                  onPointerDown={(e) => e.preventDefault()}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handlePurchase(pkg.id);
-                  }}
+                  onClick={() => handlePurchase(pkg.id)}
                 >
                   {pkg.cta}
                 </Button>

@@ -19,12 +19,12 @@ export const IntakeForm = ({ orderId, onBack }: IntakeFormProps) => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     phone: "",
     linkedin: "",
     resume: null as File | null,
-    jobUrl: "",
     jobDescription: "",
     additionalInfo: ""
   });
@@ -65,10 +65,19 @@ export const IntakeForm = ({ orderId, onBack }: IntakeFormProps) => {
     e.preventDefault();
     
     // Validate required fields
-    if (!formData.name.trim()) {
+    if (!formData.firstName.trim()) {
       toast({
         title: "Missing information",
-        description: "Please enter your name.",
+        description: "Please enter your first name.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!formData.lastName.trim()) {
+      toast({
+        title: "Missing information",
+        description: "Please enter your last name.",
         variant: "destructive"
       });
       return;
@@ -83,10 +92,19 @@ export const IntakeForm = ({ orderId, onBack }: IntakeFormProps) => {
       return;
     }
     
-    if (!formData.jobDescription.trim() && !formData.jobUrl.trim()) {
+    if (!formData.linkedin.trim()) {
       toast({
         title: "Missing information",
-        description: "Please provide either a job description or job posting URL.",
+        description: "Please enter your LinkedIn profile URL.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!formData.jobDescription.trim()) {
+      toast({
+        title: "Missing information",
+        description: "Please provide the job description.",
         variant: "destructive"
       });
       return;
@@ -121,12 +139,12 @@ export const IntakeForm = ({ orderId, onBack }: IntakeFormProps) => {
       // Insert intake form data
       const intakeData = {
         order_id: orderId,
-        name: formData.name.trim(),
+        name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
         email: formData.email.trim(),
         phone: formData.phone.trim() || null,
-        linkedin: formData.linkedin.trim() || null,
+        linkedin: formData.linkedin.trim(),
         resume_url: resumeUrl,
-        job_url: formData.jobUrl.trim() || null,
+        job_url: null,
         job_description: formData.jobDescription.trim(),
         additional_info: formData.additionalInfo.trim() || null
       };
@@ -151,12 +169,12 @@ export const IntakeForm = ({ orderId, onBack }: IntakeFormProps) => {
           body: { 
             orderId, 
             formData: {
-              name: formData.name,
+              name: `${formData.firstName} ${formData.lastName}`,
               email: formData.email,
               phone: formData.phone,
               linkedin: formData.linkedin,
               job_description: formData.jobDescription,
-              job_url: formData.jobUrl,
+              job_url: null,
               additional_info: formData.additionalInfo,
               resumeUrl
             }
@@ -216,13 +234,24 @@ export const IntakeForm = ({ orderId, onBack }: IntakeFormProps) => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="md:col-span-2">
-                <Label htmlFor="name">Full Name *</Label>
+              <div>
+                <Label htmlFor="firstName">First Name *</Label>
                 <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                  placeholder="Enter your full name"
+                  id="firstName"
+                  value={formData.firstName}
+                  onChange={(e) => handleInputChange('firstName', e.target.value)}
+                  placeholder="Enter your first name"
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="lastName">Last Name *</Label>
+                <Input
+                  id="lastName"
+                  value={formData.lastName}
+                  onChange={(e) => handleInputChange('lastName', e.target.value)}
+                  placeholder="Enter your last name"
                   required
                 />
               </div>
@@ -259,7 +288,7 @@ export const IntakeForm = ({ orderId, onBack }: IntakeFormProps) => {
               <div className="md:col-span-2">
                 <Label htmlFor="linkedin" className="flex items-center gap-2">
                   <Globe className="w-4 h-4" />
-                  LinkedIn Profile URL
+                  LinkedIn Profile URL *
                 </Label>
                 <Input
                   id="linkedin"
@@ -267,6 +296,7 @@ export const IntakeForm = ({ orderId, onBack }: IntakeFormProps) => {
                   value={formData.linkedin}
                   onChange={(e) => handleInputChange('linkedin', e.target.value)}
                   placeholder="https://linkedin.com/in/yourprofile"
+                  required
                 />
               </div>
             </div>
@@ -280,7 +310,7 @@ export const IntakeForm = ({ orderId, onBack }: IntakeFormProps) => {
             </div>
             
             <div>
-              <Label htmlFor="resume">Upload Your Resume (PDF, DOC, DOCX - Max 5MB)</Label>
+              <Label htmlFor="resume">Upload Your Resume (Optional) - PDF, DOC, DOCX - Max 5MB</Label>
               <Input
                 id="resume"
                 type="file"
@@ -305,27 +335,16 @@ export const IntakeForm = ({ orderId, onBack }: IntakeFormProps) => {
             </div>
             
             <div>
-              <Label htmlFor="jobUrl">Job Posting URL (Optional)</Label>
-              <Input
-                id="jobUrl"
-                type="url"
-                value={formData.jobUrl}
-                onChange={(e) => handleInputChange('jobUrl', e.target.value)}
-                placeholder="https://company.com/jobs/position"
-              />
-            </div>
-            
-            <div>
               <Label htmlFor="jobDescription">
-                Job Description * {formData.jobUrl ? '(Optional if URL provided above)' : ''}
+                Job Description * (copy and paste job posting link or the entire job description)
               </Label>
               <Textarea
                 id="jobDescription"
                 value={formData.jobDescription}
                 onChange={(e) => handleInputChange('jobDescription', e.target.value)}
-                placeholder="Paste the complete job description here..."
+                placeholder="Paste the complete job description or job posting link here..."
                 className="min-h-[150px]"
-                required={!formData.jobUrl.trim()}
+                required
               />
             </div>
           </div>

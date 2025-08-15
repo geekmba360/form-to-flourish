@@ -111,7 +111,6 @@ serve(async (req) => {
         <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <h3 style="margin-top: 0; color: #1f2937;">What happens next?</h3>
           <ul style="margin: 0; padding-left: 20px;">
-            <li><strong>Complete your intake form:</strong> Please fill out your intake form so we can customize your experience. This is required to receive your report.</li>
             <li><strong>Anticipated Interview Questions Report:</strong> You'll receive your customized report within 24 hours of submitting the intake form.</li>
             ${order.package_name.includes('Coaching') || order.package_name.includes('coaching') ? 
               '<li><strong>Coaching Session:</strong> We\'ll be in touch to schedule your first coaching session.</li>' : ''}
@@ -122,7 +121,7 @@ serve(async (req) => {
           <p style="margin: 0;"><strong>Important:</strong> If you haven't filled out your intake form yet, please complete it now using the link below.</p>
         </div>
         
-        <p><a href="https://vbgyzisstcvrikdhpiil.supabase.co/intake-form?order_id=${orderId}" 
+        <p><a href="https://lovable.dev/projects/bd74c0ea-6ce0-4302-b8ee-2b2e01dfc4a6/preview/intake-form?order_id=${orderId}"
            style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
            Complete Your Intake Form</a></p>
         

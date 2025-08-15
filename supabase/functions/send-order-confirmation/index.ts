@@ -102,7 +102,7 @@ serve(async (req) => {
 
     try {
       await resend.emails.send({
-        from: "Andrew from Nail Your Job Interview <updates@nailyourjobinterview.com>",
+        from: "Andrew from Nail Your Job Interview <andrew@updates.nailyourjobinterview.com>",
         to: [order.customer_email],
         replyTo: "andrew@nailyourjobinterview.com",
         subject: "Thank you for your purchase - Next steps inside!",
@@ -145,7 +145,7 @@ serve(async (req) => {
 
     try {
       await resend.emails.send({
-        from: "Nail Your Job Interview Notifications <updates@nailyourjobinterview.com>",
+        from: "Nail Your Job Interview Notifications <notifications@updates.nailyourjobinterview.com>",
         to: ["andrew@nailyourjobinterview.com"],
         replyTo: "andrew@nailyourjobinterview.com",
         subject: `New Purchase: ${defaultName} - ${order.package_name}`,

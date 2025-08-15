@@ -1,10 +1,13 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { Resend } from "npm:resend@4.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
@@ -39,83 +42,97 @@ serve(async (req) => {
       throw new Error(`Order not found: ${orderError?.message}`);
     }
 
-    const mailchimpApiKey = Deno.env.get("MAILCHIMP_API_KEY");
-    const audienceId = Deno.env.get("MAILCHIMP_AUDIENCE_ID") || "d7102b6132";
-
-    if (!mailchimpApiKey) {
-      logStep("WARNING: No Mailchimp API key found, skipping email notifications");
-      return new Response(JSON.stringify({ success: true, warning: "Emails not sent - no API key" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
-    }
-
-    const serverPrefix = mailchimpApiKey.split('-')[1];
-
-    // Update customer information in Mailchimp
+    // Get customer information
     const customerName = formData.name || `${formData.firstName || ''} ${formData.lastName || ''}`.trim();
     const customerEmail = formData.email || order.customer_email;
+    const firstName = formData.firstName || formData.name?.split(' ')[0] || customerName.split(' ')[0] || 'Customer';
 
-    const customerUpdateData = {
-      email_address: customerEmail,
-      status: "subscribed",
-      merge_fields: {
-        FNAME: formData.firstName || formData.name || customerName,
-        LNAME: formData.lastName || ""
-      },
-      tags: ["intake_completed"]
-    };
+    logStep("Sending intake confirmation email to customer", { email: customerEmail });
 
-    logStep("Updating customer information in Mailchimp", { email: customerEmail });
+    // Send confirmation email to customer
+    const customerEmailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #2563eb;">Thank you for submitting your intake form!</h2>
+        
+        <p>Hi ${firstName},</p>
+        
+        <p>We've received your intake form for the <strong>${order.package_name}</strong> package. Thank you for providing all the details!</p>
+        
+        <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #1f2937;">What happens next?</h3>
+          <ul style="margin: 0; padding-left: 20px;">
+            <li><strong>Anticipated Interview Questions Report:</strong> You'll receive your customized report within 24 hours.</li>
+            ${order.package_name.includes('Coaching') || order.package_name.includes('coaching') ? 
+              '<li><strong>Coaching Session:</strong> We\'ll be in touch to schedule your first coaching session.</li>' : ''}
+          </ul>
+        </div>
+        
+        <p>If you haven't completed your intake form yet, you can do so here: 
+        <a href="https://vbgyzisstcvrikdhpiil.supabase.co/intake-form?order_id=${orderId}" 
+           style="color: #2563eb; text-decoration: none;">Complete Intake Form</a></p>
+        
+        <p>If you have any questions or need assistance, please don't hesitate to email me at 
+        <a href="mailto:andrew@nailyourjobinterview.com" style="color: #2563eb;">andrew@nailyourjobinterview.com</a>.</p>
+        
+        <p>Best regards,<br>
+        Andrew<br>
+        <strong>Nail Your Job Interview</strong></p>
+      </div>
+    `;
 
-    const customerEmailResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/${audienceId}/members`, {
-      method: "POST",
-      headers: {
-        "Authorization": `apikey ${mailchimpApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(customerUpdateData),
-    });
-
-    if (!customerEmailResponse.ok) {
-      const errorText = await customerEmailResponse.text();
-      logStep("Customer email update failed", { status: customerEmailResponse.status, error: errorText });
-    } else {
-      logStep("Customer information updated in Mailchimp");
+    try {
+      await resend.emails.send({
+        from: "Andrew from Nail Your Job Interview <onboarding@resend.dev>",
+        to: [customerEmail],
+        subject: "Intake Form Received - Your Report is Coming Soon!",
+        html: customerEmailHtml,
+      });
+      logStep("Customer confirmation email sent successfully");
+    } catch (error) {
+      logStep("Customer email failed", { error: error.message });
     }
 
-    // Send notification to Andrew about completed intake
-    const andrewNotificationData = {
-      email_address: "andrew@nailyourjobinterview.com",
-      status: "subscribed",
-      merge_fields: {
-        FNAME: "Andrew",
-        LAST_CUSTOMER: customerName,
-        CUSTOMER_EMAIL: customerEmail,
-        ORDER_ID: orderId,
-        PACKAGE: order.package_name,
-        PHONE: formData.phone || formData.phoneNumber || "",
-        LINKEDIN: formData.linkedin || formData.linkedinProfile || "",
-        JOB_DESC: (formData.job_description || formData.jobDescriptionText || "").substring(0, 500),
-        ADDITIONAL: (formData.additional_info || formData.additionalInformation || "").substring(0, 500)
-      },
-      tags: ["intake_completed_notification"]
-    };
+    // Send notification email to Andrew
+    logStep("Sending notification email to Andrew");
 
-    const andrewNotificationResponse = await fetch(`https://${serverPrefix}.api.mailchimp.com/3.0/lists/${audienceId}/members`, {
-      method: "POST",
-      headers: {
-        "Authorization": `apikey ${mailchimpApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(andrewNotificationData),
-    });
+    const andrewEmailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #dc2626;">New Intake Form Submission</h2>
+        
+        <p>A customer has submitted their intake form.</p>
+        
+        <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #1f2937;">Customer Details:</h3>
+          <ul style="margin: 0; padding-left: 20px;">
+            <li><strong>Name:</strong> ${customerName}</li>
+            <li><strong>Email:</strong> ${customerEmail}</li>
+            <li><strong>Package:</strong> ${order.package_name}</li>
+            <li><strong>Order ID:</strong> ${orderId}</li>
+            ${formData.phone ? `<li><strong>Phone:</strong> ${formData.phone}</li>` : ''}
+            ${formData.linkedin ? `<li><strong>LinkedIn:</strong> ${formData.linkedin}</li>` : ''}
+          </ul>
+        </div>
+        
+        <p><a href="https://vbgyzisstcvrikdhpiil.supabase.co/admin" 
+             style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+           View Submission Details in Admin Panel</a></p>
+        
+        <div style="background-color: #fef3c7; padding: 15px; border-radius: 6px; border-left: 4px solid #f59e0b; margin: 20px 0;">
+          <p style="margin: 0;"><strong>Reminder:</strong> Follow up within 24 hours with the anticipated interview questions report.</p>
+        </div>
+      </div>
+    `;
 
-    if (!andrewNotificationResponse.ok) {
-      const errorText = await andrewNotificationResponse.text();
-      logStep("Andrew notification failed", { status: andrewNotificationResponse.status, error: errorText });
-    } else {
-      logStep("Andrew notification sent successfully");
+    try {
+      await resend.emails.send({
+        from: "Nail Your Job Interview Notifications <onboarding@resend.dev>",
+        to: ["andrew@nailyourjobinterview.com"],
+        subject: `New Intake Form: ${customerName} (${order.package_name})`,
+        html: andrewEmailHtml,
+      });
+      logStep("Andrew notification email sent successfully");
+    } catch (error) {
+      logStep("Andrew notification email failed", { error: error.message });
     }
 
     logStep("Intake notification process completed");

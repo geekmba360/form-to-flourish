@@ -50,6 +50,8 @@ serve(async (req) => {
     });
 
     let actualCustomerEmail = order.customer_email;
+    let actualCustomerName = null;
+    
     if (order.stripe_session_id) {
       try {
         const session = await stripe.checkout.sessions.retrieve(order.stripe_session_id);
@@ -69,8 +71,13 @@ serve(async (req) => {
             logStep("Updated order with actual customer email");
           }
         }
+        
+        if (session.customer_details?.name) {
+          actualCustomerName = session.customer_details.name;
+          logStep("Retrieved actual customer name from Stripe", { name: actualCustomerName });
+        }
       } catch (stripeError) {
-        logStep("Failed to retrieve customer email from Stripe", { error: stripeError });
+        logStep("Failed to retrieve customer details from Stripe", { error: stripeError });
       }
     }
 
@@ -84,9 +91,11 @@ serve(async (req) => {
       logStep("Failed to update order status", { error: updateError });
     }
 
-    // Extract customer name from email (fallback)
-    const emailParts = actualCustomerEmail.split('@');
-    const defaultName = emailParts[0].charAt(0).toUpperCase() + emailParts[0].slice(1);
+    // Use actual customer name or fallback to email-based name
+    const customerName = actualCustomerName || (() => {
+      const emailParts = actualCustomerEmail.split('@');
+      return emailParts[0].charAt(0).toUpperCase() + emailParts[0].slice(1);
+    })();
 
     logStep("Sending order confirmation email to customer", { email: actualCustomerEmail });
 
@@ -95,7 +104,7 @@ serve(async (req) => {
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <h2 style="color: #2563eb;">Thank you for your purchase!</h2>
         
-        <p>Hi ${defaultName},</p>
+        <p>Hi ${customerName},</p>
         
         <p>Thank you for purchasing the <strong>${order.package_name}</strong> package. We're excited to help you nail your job interview!</p>
         
@@ -117,15 +126,15 @@ serve(async (req) => {
           </ul>
         </div>
         
-        <div style="background-color: #dc2626; color: white; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
-          <h3 style="margin: 0 0 10px 0; color: white;">⚠️ ACTION REQUIRED ⚠️</h3>
-          <p style="margin: 0; font-size: 16px;"><strong>Please complete your intake form to receive your customized report!</strong></p>
+        <div style="background-color: #f59e0b; color: white; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
+          <h3 style="margin: 0 0 10px 0; color: white;">📝 INTAKE FORM</h3>
+          <p style="margin: 0; font-size: 16px;"><strong>Just in case you didn't fill out the intake form after checkout, please do so now - here is the link:</strong></p>
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
           <a href="https://nailyourjobinterview.com/intake-form?order_id=${orderId}"
            style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-           Complete Your Intake Form</a></p>
+           Complete Your Intake Form</a></div>
         
         <p>If you have any questions or need assistance, please don't hesitate to email me at 
         <a href="mailto:andrew@nailyourjobinterview.com" style="color: #2563eb;">andrew@nailyourjobinterview.com</a>.</p>
@@ -161,7 +170,7 @@ serve(async (req) => {
         <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <h3 style="margin-top: 0; color: #1f2937;">Customer Details:</h3>
           <ul style="margin: 0; padding-left: 20px;">
-            <li><strong>Name:</strong> ${defaultName}</li>
+            <li><strong>Name:</strong> ${customerName}</li>
             <li><strong>Email:</strong> ${actualCustomerEmail}</li>
             <li><strong>Package:</strong> ${order.package_name}</li>
             <li><strong>Amount:</strong> $${(order.amount / 100).toFixed(2)}</li>
@@ -184,7 +193,7 @@ serve(async (req) => {
         from: "Nail Your Job Interview <noreply@updates.nailyourjobinterview.com>",
         to: ["andrew@nailyourjobinterview.com"],
         replyTo: "andrew@nailyourjobinterview.com",
-        subject: `New Purchase: ${defaultName} - ${order.package_name}`,
+        subject: `New Purchase: ${customerName} - ${order.package_name}`,
         html: andrewEmailHtml,
       });
       logStep("Andrew notification email sent successfully");

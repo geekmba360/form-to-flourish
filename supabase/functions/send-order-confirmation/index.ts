@@ -132,9 +132,10 @@ serve(async (req) => {
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://nailyourjobinterview.com/intake-form?order_id=${orderId}"
+          <a href="https://vbgyzisstcvrikdhpiil.lovable.app/intake-form?order_id=${orderId}"
            style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-           Complete Your Intake Form</a></div>
+           Complete Your Intake Form</a>
+        </div>
         
         <p>If you have any questions or need assistance, please don't hesitate to email me at 
         <a href="mailto:andrew@nailyourjobinterview.com" style="color: #2563eb;">andrew@nailyourjobinterview.com</a>.</p>
@@ -178,7 +179,7 @@ serve(async (req) => {
           </ul>
         </div>
         
-        <p><a href="https://vbgyzisstcvrikdhpiil.supabase.co/admin" 
+        <p><a href="https://vbgyzisstcvrikdhpiil.lovable.app/admin" 
              style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
            View in Admin Panel</a></p>
         

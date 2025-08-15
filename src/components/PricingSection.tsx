@@ -8,6 +8,13 @@ export const PricingSection = () => {
   const { toast } = useToast();
   
   const handlePurchase = async (packageId: string) => {
+    // Prevent double clicks by disabling the button temporarily
+    const button = event?.target as HTMLButtonElement;
+    if (button) {
+      button.disabled = true;
+      button.style.opacity = '0.7';
+    }
+    
     try {
       const { data, error } = await supabase.functions.invoke('create-payment', {
         body: { packageId }
@@ -24,6 +31,14 @@ export const PricingSection = () => {
         description: "Failed to initiate payment. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      // Re-enable the button after a delay
+      if (button) {
+        setTimeout(() => {
+          button.disabled = false;
+          button.style.opacity = '1';
+        }, 2000);
+      }
     }
   };
 

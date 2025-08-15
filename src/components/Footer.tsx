@@ -43,23 +43,23 @@ export const Footer = () => {
               </li>
               <li>
                 <a 
-                  href="https://nailyourjobinterview.com/guides" 
+                  href="https://nailyourjobinterview.com/top-rated-career-strategy-books/" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
                 >
-                  Career Guides
+                  Career Strategy Books
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </li>
               <li>
                 <a 
-                  href="https://nailyourjobinterview.com/contact" 
+                  href="https://nailyourjobinterview.com/coaching/" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
                 >
-                  Coaching Services
+                  Elite Interview and Career Coaching
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </li>

@@ -6,8 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, LogOut, Eye } from "lucide-react";
+import { Loader2, LogOut, Eye, Edit, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
 
 interface IntakeSubmission {
@@ -37,6 +41,8 @@ const Admin = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [submissions, setSubmissions] = useState<(IntakeSubmission & { order: Order })[]>([]);
   const [user, setUser] = useState<any>(null);
+  const [editingSubmission, setEditingSubmission] = useState<IntakeSubmission | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -128,6 +134,71 @@ const Admin = () => {
     }).format(amount / 100);
   };
 
+  const handleEdit = (submission: IntakeSubmission & { order: Order }) => {
+    setEditingSubmission(submission);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingSubmission) return;
+
+    try {
+      const { error } = await supabase
+        .from("intake_forms")
+        .update({
+          name: editingSubmission.name,
+          email: editingSubmission.email,
+          phone: editingSubmission.phone,
+          linkedin: editingSubmission.linkedin,
+          job_description: editingSubmission.job_description,
+          additional_info: editingSubmission.additional_info,
+          job_url: editingSubmission.job_url
+        })
+        .eq("id", editingSubmission.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Submission updated successfully",
+      });
+
+      setIsEditDialogOpen(false);
+      setEditingSubmission(null);
+      loadSubmissions();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to update submission: " + error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDelete = async (submissionId: string) => {
+    try {
+      const { error } = await supabase
+        .from("intake_forms")
+        .delete()
+        .eq("id", submissionId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Submission deleted successfully",
+      });
+
+      loadSubmissions();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to delete submission: " + error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -194,13 +265,14 @@ const Admin = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              <Eye className="h-4 w-4 mr-2" />
-                              View Details
-                            </Button>
-                          </DialogTrigger>
+                        <div className="flex gap-2">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <Eye className="h-4 w-4 mr-2" />
+                                View
+                              </Button>
+                            </DialogTrigger>
                           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                             <DialogHeader>
                               <DialogTitle>Submission Details</DialogTitle>
@@ -271,6 +343,42 @@ const Admin = () => {
                             </div>
                           </DialogContent>
                         </Dialog>
+                        
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleEdit(submission)}
+                        >
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit
+                        </Button>
+                        
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete this submission.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDelete(submission.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -285,6 +393,122 @@ const Admin = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Edit Dialog */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edit Submission</DialogTitle>
+            </DialogHeader>
+            {editingSubmission && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="edit-name">Name</Label>
+                    <Input
+                      id="edit-name"
+                      value={editingSubmission.name}
+                      onChange={(e) => setEditingSubmission({
+                        ...editingSubmission,
+                        name: e.target.value
+                      })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-email">Email</Label>
+                    <Input
+                      id="edit-email"
+                      type="email"
+                      value={editingSubmission.email}
+                      onChange={(e) => setEditingSubmission({
+                        ...editingSubmission,
+                        email: e.target.value
+                      })}
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="edit-phone">Phone</Label>
+                    <Input
+                      id="edit-phone"
+                      value={editingSubmission.phone || ''}
+                      onChange={(e) => setEditingSubmission({
+                        ...editingSubmission,
+                        phone: e.target.value
+                      })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-linkedin">LinkedIn</Label>
+                    <Input
+                      id="edit-linkedin"
+                      value={editingSubmission.linkedin || ''}
+                      onChange={(e) => setEditingSubmission({
+                        ...editingSubmission,
+                        linkedin: e.target.value
+                      })}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="edit-job-url">Job URL</Label>
+                  <Input
+                    id="edit-job-url"
+                    value={editingSubmission.job_url || ''}
+                    onChange={(e) => setEditingSubmission({
+                      ...editingSubmission,
+                      job_url: e.target.value
+                    })}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="edit-job-description">Job Description</Label>
+                  <Textarea
+                    id="edit-job-description"
+                    rows={6}
+                    value={editingSubmission.job_description}
+                    onChange={(e) => setEditingSubmission({
+                      ...editingSubmission,
+                      job_description: e.target.value
+                    })}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="edit-additional-info">Additional Information</Label>
+                  <Textarea
+                    id="edit-additional-info"
+                    rows={4}
+                    value={editingSubmission.additional_info || ''}
+                    onChange={(e) => setEditingSubmission({
+                      ...editingSubmission,
+                      additional_info: e.target.value
+                    })}
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setIsEditDialogOpen(false);
+                      setEditingSubmission(null);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSaveEdit}>
+                    Save Changes
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );

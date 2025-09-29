@@ -265,7 +265,7 @@ const Admin = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                           <Dialog>
                             <DialogTrigger asChild>
                               <Button variant="outline" size="sm">
@@ -333,10 +333,29 @@ const Admin = () => {
                               {submission.resume_url && (
                                 <div>
                                   <h3 className="font-semibold mb-2">Resume</h3>
-                                  <Button asChild variant="outline">
-                                    <a href={submission.resume_url} target="_blank" rel="noopener noreferrer">
-                                      Download Resume
-                                    </a>
+                                  <Button 
+                                    variant="outline"
+                                    onClick={async () => {
+                                      try {
+                                        // Generate signed URL for secure access
+                                        const { data, error } = await supabase.storage
+                                          .from('resumes')
+                                          .createSignedUrl(submission.resume_url.split('/').pop() || '', 3600);
+                                        
+                                        if (error) throw error;
+                                        
+                                        // Open in new tab
+                                        window.open(data.signedUrl, '_blank');
+                                      } catch (error: any) {
+                                        toast({
+                                          title: "Error",
+                                          description: "Failed to download resume: " + error.message,
+                                          variant: "destructive",
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    Download Resume
                                   </Button>
                                 </div>
                               )}

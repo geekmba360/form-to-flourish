@@ -66,9 +66,9 @@ const ThankYou = () => {
 
           <div className="pt-6">
             <Button asChild variant="outline" size="lg">
-              <Link to="/">
-                Return to Homepage
-              </Link>
+              <a href="https://nailyourjobinterview.com" className="flex items-center justify-center">
+                Return to NailYourJobInterview.com
+              </a>
             </Button>
           </div>
         </CardContent>

@@ -216,6 +216,9 @@ const Admin = () => {
             <span className="text-sm text-muted-foreground">
               Welcome, {user?.email}
             </span>
+            <Button variant="outline" onClick={() => navigate("/admin/settings")}>
+              Settings
+            </Button>
             <Button variant="outline" onClick={handleSignOut}>
               <LogOut className="h-4 w-4 mr-2" />
               Sign Out

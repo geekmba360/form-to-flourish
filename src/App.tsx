@@ -11,6 +11,7 @@ import IntakeForm from "./pages/IntakeForm";
 import ThankYou from "./pages/ThankYou";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
+import AdminSettings from "./pages/AdminSettings";
 import Test from "./pages/Test";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/auth/" element={<Auth />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/" element={<Admin />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

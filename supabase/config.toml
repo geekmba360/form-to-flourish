@@ -46,3 +46,6 @@ enable_confirmations = false
 
 [functions.create-payment]
 verify_jwt = false
+
+[functions.setup-admin]
+verify_jwt = false

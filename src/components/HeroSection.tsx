@@ -1,9 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Target, CheckCircle, Loader2 } from "lucide-react";
 
 export const HeroSection = () => {
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        setIsLoading(false);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
   return (
     <section className="bg-gradient-subtle pt-20 pb-12 px-4">
       <div className="max-w-4xl mx-auto text-center">

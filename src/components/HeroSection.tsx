@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Target, CheckCircle } from "lucide-react";
+import { Target, CheckCircle, Loader2 } from "lucide-react";
 
 export const HeroSection = () => {
+  const [isLoading, setIsLoading] = useState(false);
   return (
     <section className="bg-gradient-subtle pt-20 pb-12 px-4">
       <div className="max-w-4xl mx-auto text-center">
@@ -38,7 +40,9 @@ export const HeroSection = () => {
           size="xl" 
           variant="cta" 
           className="animate-fade-in-up [animation-delay:800ms]"
+          disabled={isLoading}
           onClick={async () => {
+            setIsLoading(true);
             try {
               const { supabase } = await import("@/integrations/supabase/client");
               const { data, error } = await supabase.functions.invoke('create-payment', {
@@ -51,12 +55,14 @@ export const HeroSection = () => {
               window.location.href = data.url;
             } catch (error) {
               console.error('Payment error:', error);
+              setIsLoading(false);
               // Fallback to pricing section if payment fails
               document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
             }
           }}
         >
-          Get My Custom Questions - $79
+          {isLoading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+          {isLoading ? "Processing..." : "Get My Custom Questions - $79"}
         </Button>
         
         <div className="flex items-center justify-center gap-2 mt-4 text-sm text-muted-foreground animate-fade-in-up [animation-delay:1000ms]">

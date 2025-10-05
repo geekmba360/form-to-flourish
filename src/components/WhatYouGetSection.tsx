@@ -4,13 +4,13 @@ export const WhatYouGetSection = () => {
   const benefits = [
     {
       icon: Target,
-      title: "Company-specific questions",
-      description: "Real questions from past interviews at your target company for similar roles, pulled from our proprietary database"
+      title: "Real insider intel",
+      description: "Actual questions asked in past interviews for your target role at your company—not generic prep"
     },
     {
       icon: FileText,
-      title: "Line-by-line job analysis", 
-      description: "Detailed analysis of each requirement in your job description to predict relevant questions"
+      title: "Expert breakdown of your job description", 
+      description: "Line-by-line analysis for maximum prep precision—we decode what they're really looking for"
     },
     {
       icon: Users,

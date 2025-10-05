@@ -101,12 +101,12 @@ export const PricingSection = () => {
           </div>
         </div>
 
-        <div className="bg-card p-8 rounded-2xl shadow-medium text-center">
+        <div className="bg-success/10 border-2 border-success p-8 rounded-2xl shadow-medium text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <Shield className="w-6 h-6 text-success" />
-            <h3 className="text-xl font-semibold text-foreground">Risk-Free Guarantee</h3>
+            <Shield className="w-8 h-8 text-success" />
+            <h3 className="text-2xl font-bold text-foreground">100% Money-Back Guarantee—No Questions Asked!</h3>
           </div>
-          <p className="text-muted-foreground mb-6">
+          <p className="text-foreground text-lg mb-6">
             If you don't find the list helpful, reply within 7 days and I'll refund you — no questions asked. 
             All I ask is that you don't use the content if you request a refund.
           </p>

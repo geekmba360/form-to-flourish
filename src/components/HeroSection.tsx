@@ -34,8 +34,8 @@ export const HeroSection = () => {
         </h2>
         
         <div className="bg-card p-8 rounded-2xl shadow-medium mb-8 animate-scale-in [animation-delay:600ms]">
-          <p className="text-lg text-muted-foreground mb-6">
-            If you're prepping for an important interview and don't want to walk in blind, this service is for you.
+          <p className="text-xl text-foreground font-bold mb-6">
+            Don't risk walking in blind to your next interview—get the real questions they'll ask.
           </p>
           
           <p className="text-lg text-foreground mb-6">
@@ -80,7 +80,11 @@ export const HeroSection = () => {
           {isLoading ? "Processing..." : "Get My Custom Questions - $79"}
         </Button>
         
-        <div className="flex items-center justify-center gap-2 mt-4 text-sm text-muted-foreground animate-fade-in-up [animation-delay:1000ms]">
+        <p className="text-sm text-muted-foreground mt-3 animate-fade-in-up [animation-delay:900ms]">
+          Land your dream job for less than the cost of a resume review
+        </p>
+        
+        <div className="flex items-center justify-center gap-2 mt-2 text-sm text-muted-foreground animate-fade-in-up [animation-delay:1000ms]">
           <CheckCircle className="w-4 h-4 text-success" />
           <span>Delivered within 24 hours</span>
         </div>

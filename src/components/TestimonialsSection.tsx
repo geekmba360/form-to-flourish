@@ -37,9 +37,24 @@ export const TestimonialsSection = () => {
   return (
     <section className="py-16 px-4 bg-testimonial-bg">
       <div className="max-w-6xl mx-auto">
-        <div className="flex items-center gap-3 mb-12 justify-center">
+        <div className="flex items-center gap-3 mb-8 justify-center">
           <MessageSquare className="w-8 h-8 text-primary" />
           <h2 className="text-3xl md:text-4xl font-bold text-foreground">What Clients Say</h2>
+        </div>
+
+        <div className="bg-primary/10 border-2 border-primary p-8 rounded-2xl shadow-strong mb-12 max-w-3xl mx-auto">
+          <div className="flex items-center gap-1 mb-4 justify-center">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} className="w-5 h-5 fill-accent text-accent" />
+            ))}
+          </div>
+          <blockquote className="text-xl text-foreground font-semibold text-center mb-4">
+            "The list Andrew sent me nailed the questions I was asked. I walked in prepared and left with an offer from Amazon."
+          </blockquote>
+          <div className="text-center">
+            <p className="font-semibold text-foreground">Senior Product Manager</p>
+            <p className="text-primary font-bold">Amazon</p>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">

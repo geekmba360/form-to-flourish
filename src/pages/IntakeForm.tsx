@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 const IntakeForm = () => {
   const [searchParams] = useSearchParams();
   const orderId = searchParams.get('order_id');
+  const submissionToken = searchParams.get('token');
 
   if (!orderId) {
     return (
@@ -24,7 +25,7 @@ const IntakeForm = () => {
   return (
     <div className="min-h-screen bg-hero-bg py-12">
       <div className="container mx-auto px-4 max-w-2xl">
-        <IntakeFormComponent orderId={orderId} />
+        <IntakeFormComponent orderId={orderId} submissionToken={submissionToken || undefined} />
       </div>
     </div>
   );

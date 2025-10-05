@@ -107,8 +107,7 @@ export const PricingSection = () => {
             <h3 className="text-2xl font-bold text-foreground">100% Money-Back Guarantee—No Questions Asked!</h3>
           </div>
           <p className="text-foreground text-lg mb-6">
-            If you don't find the list helpful, reply within 7 days and I'll refund you — no questions asked. 
-            All I ask is that you don't use the content if you request a refund.
+            If you don't find the list helpful, reply within 7 days and I'll refund you — no questions asked.
           </p>
           
           <div className="grid md:grid-cols-3 gap-6 mt-8">

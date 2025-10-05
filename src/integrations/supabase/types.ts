@@ -160,6 +160,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      validate_intake_submission: {
+        Args: { _order_id: string; _submission_token: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "user"

@@ -56,7 +56,7 @@ export const PricingSection = () => {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
           <Badge variant="secondary" className="mb-4 text-accent font-semibold">
-            🎁 Limited-Time Launch Offer
+            🎁 Limited-Time Offer
           </Badge>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Get Your Personalized Interview Questions

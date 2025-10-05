@@ -28,8 +28,8 @@ export const CompanyLogosSection = () => {
             </div>
           ))}
           
-          <div className="text-sm font-semibold text-muted-foreground bg-card px-4 py-2 rounded-full border border-border">
-            +100 more companies
+          <div className="text-sm font-medium text-muted-foreground bg-card px-6 py-3 rounded-full border border-border max-w-2xl">
+            Plus many more startups, high growth companies across multiple industries in technology, health care, management consulting, and more
           </div>
         </div>
       </div>

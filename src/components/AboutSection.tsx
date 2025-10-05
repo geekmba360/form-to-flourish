@@ -27,7 +27,7 @@ export const AboutSection = () => {
         
         <div className="bg-card p-8 rounded-2xl shadow-medium">
           <div className="text-center mb-8">
-            <h3 className="text-2xl font-semibold text-foreground mb-4">Andrew Franklin</h3>
+            <h3 className="text-2xl font-semibold text-foreground mb-4">Led by Andrew Franklin</h3>
             <p className="text-lg text-muted-foreground">
               Former software engineer, product manager, CMO, and GM
             </p>
@@ -36,15 +36,15 @@ export const AboutSection = () => {
           <div className="grid md:grid-cols-2 gap-8 mb-8">
             <div>
               <p className="text-foreground mb-6">
-                I have over 20 years of experience hiring and leading teams at high-growth startups and publicly traded tech companies.
+                Andrew has over 20 years of experience hiring and leading teams at high-growth startups and publicly traded tech companies.
               </p>
               
               <p className="text-foreground mb-6">
-                I've personally hired hundreds of people — and since 2008, I've coached thousands more to land jobs at {companies.slice(0, -1).join(", ")}, and other top employers.
+                He's personally hired hundreds of people — and since 2008, our team has coached thousands more to land jobs at {companies.slice(0, -1).join(", ")}, and other top employers.
               </p>
               
               <p className="text-foreground">
-                Over the years, I've built a proprietary database of actual interview questions from these companies, gathered from candidate feedback after their interviews. I take a strategic, structured, and pragmatic approach to interview prep — grounded in real hiring experience and real interview data.
+                Over the years, we've built a proprietary database of actual interview questions from these companies, gathered from candidate feedback after their interviews. We take a strategic, structured, and pragmatic approach to interview prep — grounded in real hiring experience and real interview data.
               </p>
             </div>
 
@@ -83,7 +83,7 @@ export const AboutSection = () => {
 
           <div className="bg-primary/5 p-6 rounded-xl text-center">
             <p className="text-foreground">
-              I run <strong className="text-primary">
+              We run <strong className="text-primary">
                 <a 
                   href="https://nailyourjobinterview.com" 
                   target="_blank" 
@@ -92,7 +92,7 @@ export const AboutSection = () => {
                 >
                   NailYourJobInterview.com
                 </a>
-              </strong>, where I help professionals at all levels navigate job transitions with strategy and confidence.
+              </strong>, where we help professionals at all levels navigate job transitions with strategy and confidence.
             </p>
             <p className="text-sm text-muted-foreground mt-3">
               <a 
@@ -101,7 +101,7 @@ export const AboutSection = () => {
                 rel="noopener noreferrer"
                 className="text-primary hover:text-primary-hover transition-colors"
               >
-                Read my latest interview tips and career advice →
+                Read our latest interview tips and career advice →
               </a>
             </p>
           </div>

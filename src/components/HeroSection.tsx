@@ -19,7 +19,7 @@ export const HeroSection = () => {
         </p>
         
         <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-8 animate-fade-in-up [animation-delay:400ms]">
-          Real Interview Questions from Your Target Company — Based on My Proprietary Database
+          Real Interview Questions from Your Target Company — Based on Our Proprietary Database
         </h2>
         
         <div className="bg-card p-8 rounded-2xl shadow-medium mb-8 animate-scale-in [animation-delay:600ms]">
@@ -28,7 +28,7 @@ export const HeroSection = () => {
           </p>
           
           <p className="text-lg text-foreground mb-6">
-            I'll send you a <strong>personalized list of interview questions</strong> drawn from my proprietary database — actual questions asked in past interviews for similar roles at your target company, based on feedback from candidates I've coached.
+            We'll send you a <strong>personalized list of interview questions</strong> drawn from our proprietary database — actual questions asked in past interviews for similar roles at your target company, based on feedback from candidates we've coached.
           </p>
 
           <p className="text-lg text-foreground mb-6">

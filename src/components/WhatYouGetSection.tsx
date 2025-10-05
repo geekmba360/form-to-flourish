@@ -5,7 +5,7 @@ export const WhatYouGetSection = () => {
     {
       icon: Target,
       title: "Company-specific questions",
-      description: "Real questions from past interviews at your target company for similar roles, pulled from my proprietary database"
+      description: "Real questions from past interviews at your target company for similar roles, pulled from our proprietary database"
     },
     {
       icon: FileText,
@@ -71,7 +71,7 @@ export const WhatYouGetSection = () => {
             <div className="flex items-start gap-3">
               <Lightbulb className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
               <p className="text-foreground">
-                <strong>Powered by real interview data.</strong> My proprietary database contains actual questions from past interviews, gathered through years of coaching candidates at your target companies. This isn't guesswork — it's based on feedback from real interviews.
+                <strong>Powered by real interview data.</strong> Our proprietary database contains actual questions from past interviews, gathered through years of coaching candidates at your target companies. This isn't guesswork — it's based on feedback from real interviews.
               </p>
             </div>
           </div>

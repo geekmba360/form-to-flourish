@@ -9,7 +9,7 @@ export const TestimonialsSection = () => {
     },
     {
       quote: "I didn't realize how much I was guessing until I saw the list he sent me. I used it to build stories around every question. I got the job.",
-      role: "Marketing Manager", 
+      role: "Sr. Director, Marketing", 
       company: "Series B Startup"
     },
     {
@@ -26,6 +26,11 @@ export const TestimonialsSection = () => {
       quote: "I've worked with other coaches, but Andrew's method is different. He doesn't recycle generic advice — he digs deep and personalizes everything.",
       role: "Chief of Staff",
       company: "AI startup"
+    },
+    {
+      quote: "Andrew's preparation was instrumental in helping me land my current role. His insights into company culture and what leadership was really looking for made all the difference.",
+      role: "SVP/GM",
+      company: "Enterprise SaaS"
     }
   ];
 

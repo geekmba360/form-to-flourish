@@ -1,6 +1,28 @@
-import { ArrowRight, CreditCard, FileText, Send } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, CreditCard, FileText, Send, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const HowItWorksSection = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const handleGetStarted = async () => {
+    setIsLoading(true);
+    try {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data, error } = await supabase.functions.invoke('create-payment', {
+        body: { packageId: 'anticipate' }
+      });
+      
+      if (error) throw error;
+      
+      window.location.href = data.url;
+    } catch (error) {
+      console.error('Payment error:', error);
+      setIsLoading(false);
+      document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+  
   const steps = [
     {
       icon: CreditCard,
@@ -58,10 +80,19 @@ export const HowItWorksSection = () => {
         </div>
 
         <div className="text-center mt-12">
-          <div className="bg-hero-bg p-6 rounded-xl inline-block">
-            <p className="text-foreground font-medium">
+          <div className="bg-hero-bg p-8 rounded-xl inline-block">
+            <p className="text-foreground font-medium mb-6">
               <strong>Ready to prep smarter?</strong> Stop guessing. Start preparing with clarity.
             </p>
+            <Button 
+              size="lg" 
+              variant="cta"
+              onClick={handleGetStarted}
+              disabled={isLoading}
+            >
+              {isLoading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+              {isLoading ? "Processing..." : "Get My Personalized Questions - $79"}
+            </Button>
           </div>
         </div>
       </div>

@@ -68,10 +68,6 @@ export const PricingSection = () => {
 
         <div className="max-w-2xl mx-auto mb-12">
           <div className="bg-card rounded-2xl shadow-medium hover:shadow-strong transition-all duration-300 ring-2 ring-primary">
-            <div className="bg-gradient-primary text-white text-center py-2 rounded-t-2xl font-semibold">
-              ⭐ Most Popular
-            </div>
-            
             <div className="p-8">
               <div className="text-center mb-6">
                 <h3 className="text-xl font-bold text-foreground mb-2">{packageData.name}</h3>

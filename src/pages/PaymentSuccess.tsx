@@ -68,6 +68,14 @@ const PaymentSuccess = () => {
           } catch (emailError) {
             console.error('Error invoking email function:', emailError);
           }
+
+          // Fire Google AdWords conversion tracking event
+          if (typeof window !== 'undefined' && (window as any).gtag) {
+            (window as any).gtag('event', 'anticipate_intervew_question_purchase', {
+              // Add event parameters if needed (e.g., value, currency, transaction_id)
+            });
+            console.log('Google AdWords conversion event fired');
+          }
         } else {
           console.log('No order found for session ID:', cleanSessionId);
           setError('Order not found. Please contact support if this issue persists.');

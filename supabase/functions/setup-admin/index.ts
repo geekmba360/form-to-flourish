@@ -39,7 +39,7 @@ serve(async (req) => {
 
     // Create admin user
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-      email: "admin@nailyourjobinterview.com",
+      email: "andrew@nailyourjobinterview.com",
       password: "kkbb1234",
       email_confirm: true,
     });
@@ -60,7 +60,7 @@ serve(async (req) => {
       JSON.stringify({ 
         success: true, 
         message: "Admin account created. Please change your password immediately after first login.",
-        email: "admin@nailyourjobinterview.com"
+        email: "andrew@nailyourjobinterview.com"
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

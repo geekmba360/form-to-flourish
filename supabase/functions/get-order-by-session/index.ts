@@ -35,7 +35,7 @@ serve(async (req) => {
     // Query orders table to find the order by session ID using service role (bypasses RLS)
     const { data, error } = await supabaseClient
       .from('orders')
-      .select('id, customer_email, package_name, amount, status')
+      .select('id, customer_email, package_name, amount, status, submission_token')
       .eq('stripe_session_id', sessionId.trim())
       .maybeSingle();
 

@@ -11,6 +11,7 @@ const PaymentSuccess = () => {
   const navigate = useNavigate();
   const sessionId = searchParams.get('session_id');
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [submissionToken, setSubmissionToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,6 +51,7 @@ const PaymentSuccess = () => {
           const order = orderData.order;
           console.log('Order found:', order.id);
           setOrderId(order.id);
+          setSubmissionToken(order.submission_token);
           
           // Send order confirmation email
           try {
@@ -154,8 +156,8 @@ const PaymentSuccess = () => {
         </Card>
 
         {/* Intake Form */}
-        {orderId ? (
-          <IntakeForm orderId={orderId} />
+        {orderId && submissionToken ? (
+          <IntakeForm orderId={orderId} submissionToken={submissionToken} />
         ) : (
           <Card>
             <CardContent className="p-6 text-center">

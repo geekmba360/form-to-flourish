@@ -29,6 +29,7 @@ export type Database = {
           order_id: string
           phone: string | null
           resume_url: string | null
+          submission_token: string | null
           updated_at: string
         }
         Insert: {
@@ -45,6 +46,7 @@ export type Database = {
           order_id: string
           phone?: string | null
           resume_url?: string | null
+          submission_token?: string | null
           updated_at?: string
         }
         Update: {
@@ -61,6 +63,7 @@ export type Database = {
           order_id?: string
           phone?: string | null
           resume_url?: string | null
+          submission_token?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -85,6 +88,7 @@ export type Database = {
           status: string | null
           stripe_customer_id: string | null
           stripe_session_id: string | null
+          submission_token: string | null
           updated_at: string
           user_id: string | null
         }
@@ -99,6 +103,7 @@ export type Database = {
           status?: string | null
           stripe_customer_id?: string | null
           stripe_session_id?: string | null
+          submission_token?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -113,6 +118,7 @@ export type Database = {
           status?: string | null
           stripe_customer_id?: string | null
           stripe_session_id?: string | null
+          submission_token?: string | null
           updated_at?: string
           user_id?: string | null
         }

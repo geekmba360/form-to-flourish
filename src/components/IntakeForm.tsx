@@ -11,10 +11,11 @@ import { FileText, User, Briefcase, Upload, Phone, Mail, Globe } from "lucide-re
 
 interface IntakeFormProps {
   orderId: string;
+  submissionToken?: string;
   onBack?: () => void;
 }
 
-export const IntakeForm = ({ orderId, onBack }: IntakeFormProps) => {
+export const IntakeForm = ({ orderId, submissionToken, onBack }: IntakeFormProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -139,6 +140,7 @@ export const IntakeForm = ({ orderId, onBack }: IntakeFormProps) => {
       // Insert intake form data
       const intakeData = {
         order_id: orderId,
+        submission_token: submissionToken,
         name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
         email: formData.email.trim(),
         phone: formData.phone.trim() || null,

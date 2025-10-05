@@ -132,7 +132,7 @@ serve(async (req) => {
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://form-to-flourish.lovable.app/intake-form?order_id=${orderId}&token=${order.submission_token}"
+          <a href="https://questions.nailyourjobinterview.com/intake-form?order_id=${orderId}&token=${order.submission_token}"
            style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
            Complete Your Intake Form</a>
         </div>

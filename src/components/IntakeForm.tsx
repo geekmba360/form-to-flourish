@@ -140,8 +140,10 @@ export const IntakeForm = ({ orderId, submissionToken, onBack }: IntakeFormProps
       // Insert intake form data
       const intakeData = {
         order_id: orderId,
-        submission_token: submissionToken || null,
+        submission_token: submissionToken === undefined ? null : submissionToken,
         name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
+        first_name: formData.firstName.trim(),
+        last_name: formData.lastName.trim(),
         email: formData.email.trim(),
         phone: formData.phone.trim() || null,
         linkedin: formData.linkedin.trim(),
@@ -151,7 +153,13 @@ export const IntakeForm = ({ orderId, submissionToken, onBack }: IntakeFormProps
         additional_info: formData.additionalInfo.trim() || null
       };
 
-      console.log('Inserting intake form data:', intakeData);
+      console.log('Inserting intake form data:', {
+        ...intakeData,
+        orderId,
+        submissionTokenFromUrl: submissionToken,
+        tokenIsUndefined: submissionToken === undefined,
+        tokenIsNull: submissionToken === null
+      });
 
       const { error: insertError } = await supabase
         .from('intake_forms')

@@ -140,7 +140,7 @@ export const IntakeForm = ({ orderId, submissionToken, onBack }: IntakeFormProps
       // Insert intake form data
       const intakeData = {
         order_id: orderId,
-        submission_token: submissionToken,
+        submission_token: submissionToken || null,
         name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
         email: formData.email.trim(),
         phone: formData.phone.trim() || null,

@@ -19,7 +19,7 @@ export const HeroSection = () => {
         </p>
         
         <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-8 animate-fade-in-up [animation-delay:400ms]">
-          Personalized Interview Prep Tailored to Your Job, Company, and Background
+          Real Interview Questions from Your Target Company — Based on My Proprietary Database
         </h2>
         
         <div className="bg-card p-8 rounded-2xl shadow-medium mb-8 animate-scale-in [animation-delay:600ms]">
@@ -28,11 +28,15 @@ export const HeroSection = () => {
           </p>
           
           <p className="text-lg text-foreground mb-6">
-            Instead of guessing what they'll ask, I'll <strong>send</strong> you a personalized list of interview questions based on your job description, target company, and background — delivered within 24 hours.
+            I'll send you a <strong>personalized list of interview questions</strong> drawn from my proprietary database — actual questions asked in past interviews for similar roles at your target company, based on feedback from candidates I've coached.
+          </p>
+
+          <p className="text-lg text-foreground mb-6">
+            Every question is tailored to <strong>your specific role and company</strong>, built from a detailed analysis of each line of your job description, combined with insights from real interviews at that employer.
           </p>
           
           <p className="text-lg text-foreground font-medium">
-            You'll save hours of stress and prep smarter with clarity and confidence.
+            You'll walk in prepared with the exact questions they're likely to ask — not generic practice questions.
           </p>
         </div>
         

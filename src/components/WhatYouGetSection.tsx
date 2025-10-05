@@ -4,18 +4,18 @@ export const WhatYouGetSection = () => {
   const benefits = [
     {
       icon: Target,
-      title: "Your target company",
-      description: "Questions tailored to the specific company culture and values"
+      title: "Company-specific questions",
+      description: "Real questions from past interviews at your target company for similar roles, pulled from my proprietary database"
     },
     {
       icon: FileText,
-      title: "Your job description", 
-      description: "Role-specific questions that match the exact requirements"
+      title: "Line-by-line job analysis", 
+      description: "Detailed analysis of each requirement in your job description to predict relevant questions"
     },
     {
       icon: Users,
-      title: "Your LinkedIn profile or resume",
-      description: "Questions that leverage your unique background and experience"
+      title: "Your background matters",
+      description: "Questions tailored to your LinkedIn profile or resume to leverage your unique experience"
     }
   ];
 
@@ -71,7 +71,7 @@ export const WhatYouGetSection = () => {
             <div className="flex items-start gap-3">
               <Lightbulb className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
               <p className="text-foreground">
-                <strong>This is not a one-size-fits-all list.</strong> It's designed just for you — built from deep research and refined through years of coaching insight.
+                <strong>Powered by real interview data.</strong> My proprietary database contains actual questions from past interviews, gathered through years of coaching candidates at your target companies. This isn't guesswork — it's based on feedback from real interviews.
               </p>
             </div>
           </div>

@@ -44,7 +44,7 @@ export const AboutSection = () => {
               </p>
               
               <p className="text-foreground">
-                I take a strategic, structured, and pragmatic approach to interview prep — grounded in real hiring experience and refined over years of high-stakes coaching.
+                Over the years, I've built a proprietary database of actual interview questions from these companies, gathered from candidate feedback after their interviews. I take a strategic, structured, and pragmatic approach to interview prep — grounded in real hiring experience and real interview data.
               </p>
             </div>
 

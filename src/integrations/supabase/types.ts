@@ -70,7 +70,7 @@ export type Database = {
           {
             foreignKeyName: "fk_intake_forms_order_id"
             columns: ["order_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "orders"
             referencedColumns: ["id"]
           },
@@ -83,6 +83,7 @@ export type Database = {
           currency: string | null
           customer_email: string
           id: string
+          intake_submitted: boolean | null
           package_id: string
           package_name: string
           status: string | null
@@ -98,6 +99,7 @@ export type Database = {
           currency?: string | null
           customer_email: string
           id?: string
+          intake_submitted?: boolean | null
           package_id: string
           package_name: string
           status?: string | null
@@ -113,6 +115,7 @@ export type Database = {
           currency?: string | null
           customer_email?: string
           id?: string
+          intake_submitted?: boolean | null
           package_id?: string
           package_name?: string
           status?: string | null

@@ -3,6 +3,11 @@ import { MessageSquare, Star } from "lucide-react";
 export const TestimonialsSection = () => {
   const testimonials = [
     {
+      quote: "It's hard to know what questions really matter until someone shows you. This was laser-focused on my role and my company.",
+      role: "Software Engineer",
+      company: "Meta" 
+    },
+    {
       quote: "The list Andrew sent me nailed the questions I was asked. I walked in prepared and left with an offer from Amazon.",
       role: "Senior Product Manager",
       company: "Amazon"
@@ -16,11 +21,6 @@ export const TestimonialsSection = () => {
       quote: "He helped me navigate a VP-level interview at a company growing 300% a year. The prep was focused, high-quality, and totally worth it.",
       role: "VP of Operations",
       company: "Fintech"
-    },
-    {
-      quote: "It's hard to know what questions really matter until someone shows you. This was laser-focused on my role and my company.",
-      role: "Software Engineer",
-      company: "Meta" 
     },
     {
       quote: "I've worked with other coaches, but Andrew's method is different. He doesn't recycle generic advice — he digs deep and personalizes everything.",

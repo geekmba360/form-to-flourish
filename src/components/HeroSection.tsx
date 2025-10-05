@@ -18,9 +18,9 @@ export const HeroSection = () => {
   return (
     <section className="bg-gradient-subtle pt-20 pb-12 px-4">
       <div className="max-w-4xl mx-auto text-center">
-        <div className="flex items-center justify-center gap-2 mb-6 animate-fade-in-up">
-          <Target className="w-12 h-12 text-primary" />
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-2 mb-6 animate-fade-in-up">
+          <Target className="w-10 h-10 md:w-12 md:h-12 text-primary" />
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground text-center md:text-left">
             Anticipate Interview Questions
           </h1>
         </div>

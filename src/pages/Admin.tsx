@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, LogOut, Eye, Edit, Trash2 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Loader2, LogOut, Eye, Edit, Trash2, UserPlus } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,6 +43,10 @@ const Admin = () => {
   const [user, setUser] = useState<any>(null);
   const [editingSubmission, setEditingSubmission] = useState<IntakeSubmission | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isAddAdminOpen, setIsAddAdminOpen] = useState(false);
+  const [newAdminEmail, setNewAdminEmail] = useState("");
+  const [newAdminPassword, setNewAdminPassword] = useState("");
+  const [isAddingAdmin, setIsAddingAdmin] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -199,6 +203,64 @@ const Admin = () => {
     }
   };
 
+  const handleAddAdmin = async () => {
+    if (!newAdminEmail || !newAdminPassword) {
+      toast({
+        title: "Error",
+        description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newAdminPassword.length < 6) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 6 characters",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsAddingAdmin(true);
+    try {
+      const { data, error } = await supabase.auth.admin.createUser({
+        email: newAdminEmail,
+        password: newAdminPassword,
+        email_confirm: true,
+      });
+
+      if (error) throw error;
+
+      // Add admin role
+      const { error: roleError } = await supabase
+        .from("user_roles")
+        .insert({
+          user_id: data.user.id,
+          role: "admin",
+        });
+
+      if (roleError) throw roleError;
+
+      toast({
+        title: "Success",
+        description: "Admin user created successfully",
+      });
+
+      setIsAddAdminOpen(false);
+      setNewAdminEmail("");
+      setNewAdminPassword("");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create admin user",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAddingAdmin(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -216,6 +278,10 @@ const Admin = () => {
             <span className="text-sm text-muted-foreground">
               Welcome, {user?.email}
             </span>
+            <Button variant="outline" onClick={() => setIsAddAdminOpen(true)}>
+              <UserPlus className="h-4 w-4 mr-2" />
+              Add Admin
+            </Button>
             <Button variant="outline" onClick={() => navigate("/admin/settings")}>
               Settings
             </Button>
@@ -529,6 +595,54 @@ const Admin = () => {
                 </div>
               </div>
             )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Add Admin Dialog */}
+        <Dialog open={isAddAdminOpen} onOpenChange={setIsAddAdminOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Admin User</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="admin-email">Email</Label>
+                <Input
+                  id="admin-email"
+                  type="email"
+                  value={newAdminEmail}
+                  onChange={(e) => setNewAdminEmail(e.target.value)}
+                  placeholder="admin@example.com"
+                />
+              </div>
+              <div>
+                <Label htmlFor="admin-password">Password</Label>
+                <Input
+                  id="admin-password"
+                  type="password"
+                  value={newAdminPassword}
+                  onChange={(e) => setNewAdminPassword(e.target.value)}
+                  placeholder="Minimum 6 characters"
+                  minLength={6}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsAddAdminOpen(false);
+                  setNewAdminEmail("");
+                  setNewAdminPassword("");
+                }}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleAddAdmin} disabled={isAddingAdmin}>
+                {isAddingAdmin && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Create Admin
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </main>

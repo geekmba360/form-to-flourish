@@ -12,7 +12,6 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -36,66 +35,22 @@ const Auth = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const ALLOWED_ADMIN_EMAILS = [
-    "andrew@nailyourjobinterview.com",
-    // Add more admin emails here as needed
-  ];
-
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      if (isSignUp) {
-        // Check if email is allowed for admin access
-        if (!ALLOWED_ADMIN_EMAILS.includes(email.toLowerCase())) {
-          toast({
-            title: "Access Denied",
-            description: "Only authorized email addresses can create admin accounts.",
-            variant: "destructive",
-          });
-          setIsLoading(false);
-          return;
-        }
-
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/admin`
-          }
-        });
-        
-        if (error) throw error;
-        
-        toast({
-          title: "Check your email",
-          description: "We've sent you a confirmation link.",
-        });
-      } else {
-        // For login, also check if user is authorized admin
-        if (!ALLOWED_ADMIN_EMAILS.includes(email.toLowerCase())) {
-          toast({
-            title: "Access Denied", 
-            description: "You don't have admin access to this system.",
-            variant: "destructive",
-          });
-          setIsLoading(false);
-          return;
-        }
-
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        
-        if (error) throw error;
-        
-        toast({
-          title: "Welcome back!",
-          description: "You've been signed in successfully.",
-        });
-      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Welcome back!",
+        description: "You've been signed in successfully.",
+      });
     } catch (error: any) {
       toast({
         title: "Error",
@@ -112,13 +67,10 @@ const Auth = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">
-            {isSignUp ? "Create Admin Account" : "Admin Login"}
+            Admin Login
           </CardTitle>
           <CardDescription>
-            {isSignUp 
-              ? "Sign up for admin access to review submissions" 
-              : "Sign in to access the admin dashboard"
-            }
+            Sign in to access the admin dashboard
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -148,21 +100,9 @@ const Auth = () => {
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isSignUp ? "Sign Up" : "Sign In"}
+              Sign In
             </Button>
           </form>
-          <div className="mt-4 text-center">
-            <Button 
-              variant="ghost" 
-              onClick={() => setIsSignUp(!isSignUp)}
-              className="text-sm"
-            >
-              {isSignUp 
-                ? "Already have an account? Sign in" 
-                : "Need an admin account? Sign up"
-              }
-            </Button>
-          </div>
         </CardContent>
       </Card>
     </div>
